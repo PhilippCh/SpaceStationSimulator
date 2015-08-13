@@ -26,8 +26,28 @@ namespace SpaceStation.Station.Structure {
 		public void Initialize(Transform cellContainer) {
 			this.cellContainer = cellContainer;
 
-			cellPrefabMappings.Add(CellType.FLOOR, Resources.Load(CELL_PREFAB_DIR + "floor") as GameObject);
-			cellPrefabMappings.Add(CellType.WALL_N, Resources.Load(CELL_PREFAB_DIR + "wallBevelled") as GameObject);
+			RegisterPrefab(CellType.FLOOR, CELL_PREFAB_DIR + "floor");
+
+			RegisterPrefab(CellType.WALL_OUTER_NORTH, CELL_PREFAB_DIR + "wallBevelled--North");
+			RegisterPrefab(CellType.WALL_OUTER_EAST, CELL_PREFAB_DIR + "wallBevelled--East");
+			RegisterPrefab(CellType.WALL_OUTER_SOUTH, CELL_PREFAB_DIR + "wallBevelled--South");
+			RegisterPrefab(CellType.WALL_OUTER_WEST, CELL_PREFAB_DIR + "wallBevelled--West");
+
+			RegisterPrefab(CellType.WALL_OUTER_EDGE_NORTHEAST, CELL_PREFAB_DIR + "wallBevelledEdge--NorthEast");
+			RegisterPrefab(CellType.WALL_OUTER_EDGE_NORTHWEST, CELL_PREFAB_DIR + "wallBevelledEdge--NorthWest");
+			RegisterPrefab(CellType.WALL_OUTER_EDGE_SOUTHEAST, CELL_PREFAB_DIR + "wallBevelledEdge--SouthEast");
+			RegisterPrefab(CellType.WALL_OUTER_EDGE_SOUTHWEST, CELL_PREFAB_DIR + "wallBevelledEdge--SouthWest");
+		}
+
+		public void RegisterPrefab(CellType cellType, string prefabPath) {
+			var cellPrefab = Resources.Load(prefabPath) as GameObject;
+
+			if (cellPrefab == null) {
+				Logger.Warn("StructureRenderer.RegisterPrefab", "Could not find prefab for {0} at {1}.", cellType, prefabPath);
+				return;
+			}
+
+			cellPrefabMappings.Add(cellType, cellPrefab);
 		}
 
 		public void EnableCell(IntVector3 position, CellType cellType) {

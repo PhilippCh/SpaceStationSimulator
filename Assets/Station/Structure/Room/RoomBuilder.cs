@@ -21,22 +21,22 @@ namespace SpaceStation.Station.Structure.Room {
 			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 1), CellType.FLOOR);
 			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 2), CellType.FLOOR);
 
-			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 0), CellType.WALL_EDGE_N);
-			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 3), CellType.WALL_EDGE_E);
-			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 0), CellType.WALL_EDGE_S);
-			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 3), CellType.WALL_EDGE_W);
+			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 0), CellType.WALL_OUTER_EDGE_NORTHEAST);
+			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 3), CellType.WALL_OUTER_EDGE_SOUTHEAST);
+			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 0), CellType.WALL_OUTER_EDGE_NORTHWEST);
+			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 3), CellType.WALL_OUTER_EDGE_SOUTHWEST);
 
-			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 1), CellType.WALL_N);
-			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 2), CellType.WALL_N);
+			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 1), CellType.WALL_OUTER_EAST);
+			RegionManager.Instance.SetCellAt(new IntVector3(0, 0, 2), CellType.WALL_OUTER_EAST);
 
-			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 1), CellType.WALL_E);
-			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 2), CellType.WALL_E);
+			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 1), CellType.WALL_OUTER_WEST);
+			RegionManager.Instance.SetCellAt(new IntVector3(3, 0, 2), CellType.WALL_OUTER_WEST);
 
-			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 0), CellType.WALL_S);
-			RegionManager.Instance.SetCellAt(new IntVector3(1, 0, 0), CellType.WALL_S);
+			RegionManager.Instance.SetCellAt(new IntVector3(1, 0, 0), CellType.WALL_OUTER_NORTH);
+			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 0), CellType.WALL_OUTER_NORTH);
 
-			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 3), CellType.WALL_W);
-			RegionManager.Instance.SetCellAt(new IntVector3(1, 0, 3), CellType.WALL_W);
+			RegionManager.Instance.SetCellAt(new IntVector3(1, 0, 3), CellType.WALL_OUTER_SOUTH);
+			RegionManager.Instance.SetCellAt(new IntVector3(2, 0, 3), CellType.WALL_OUTER_SOUTH);
 
 			RegionManager.Instance.UpdateRenderedCells(Vector2.zero);
 		}
