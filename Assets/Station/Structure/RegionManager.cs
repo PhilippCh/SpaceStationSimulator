@@ -15,9 +15,21 @@ namespace SpaceStation.Station.Structure {
 	 */
 	public class RegionManager : MonoBehaviour {
 
+		public enum SpawnPosition {
+			ZERO,
+			CENTER
+		}
+
 		public static RegionManager Instance { get; private set; }
 
+		[Tooltip("Container for all spawned cell prefabs.")]
 		public Transform CellContainer;
+
+		[Tooltip("The default spawn position for new stations in the global coordinate system.")]
+		public SpawnPosition defaultSpawnPosition = SpawnPosition.CENTER;
+
+		[HideInInspector]
+		public IntVector3 identityVector;
 
 		private Region activeRegion;
 		private IStructureRenderer structureRenderer;
@@ -31,6 +43,33 @@ namespace SpaceStation.Station.Structure {
 			structureRenderer = new StructureRenderer();
 
 			structureRenderer.Initialize(CellContainer);
+
+			SetSpawnPosition(defaultSpawnPosition, true);
+		}
+
+		/** 
+		 * Sets camera position and identity vector.
+		 * The identity vector defined the center point of our universe (e.g. X = Y = Z = 0)
+		 */
+		private void SetSpawnPosition(SpawnPosition position, bool setCamera) {
+
+			switch (defaultSpawnPosition) {
+				case SpawnPosition.ZERO:
+					identityVector = IntVector3.zero;
+					break;
+					
+				case SpawnPosition.CENTER:
+					identityVector = new IntVector3(128, 128, 128);
+					break;
+			}
+
+			if (setCamera) {
+				var cameraController = CameraController.GetMainController();
+
+				if (cameraController != null) {
+					cameraController.MoveTo(identityVector, true);
+				}
+			}
 		}
 
 		public CellType GetCellAt(Vector3 position) {

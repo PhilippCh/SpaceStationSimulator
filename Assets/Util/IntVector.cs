@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace SpaceStation.Util {
 
+	[Serializable]
 	public struct IntVector2 {
 
 		public static IntVector2 zero = new IntVector2(0, 0);
@@ -33,6 +34,7 @@ namespace SpaceStation.Util {
 		}
 	}
 
+	[Serializable]
 	public struct IntVector3 {
 
 		public static IntVector3 zero = new IntVector3(0, 0, 0);
