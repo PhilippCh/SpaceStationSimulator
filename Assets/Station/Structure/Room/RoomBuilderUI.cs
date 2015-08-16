@@ -4,8 +4,11 @@ using System.Collections;
 using SpaceStation;
 using SpaceStation.Util;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 namespace SpaceStation.Station.Structure.Room {
+
+	/* BEGIN OLD DEFINITIONS */
 
 	public enum CellType {
 		EMPTY,
@@ -13,80 +16,68 @@ namespace SpaceStation.Station.Structure.Room {
 		WALL
 	}
 
-	public class CellViz {
-		public GUIStyle Style;
-		public string Icon;
-	}
-
 	public class RoomDefinition {
 		public Rect bounds;
 		public CellType[,] cells;
 	}
 
+	/* END OLD DEFINITIONS */
+
 	public class RoomBuilderUI : MonoBehaviour {
 
-		Texture2D wallTexture, floorTexture, emptyTexture, deleteTexture;
-		GUIStyle floorStyle, wallStyle, emptyStyle;
-		int tileSize = 24;
+		public int TileSize = 24;
+		public int BuildArea = 64;
+
+		private Dictionary<CellType, GUIStyle> styles;
+
+		public RoomBuilderUI() {
+			styles = new Dictionary<CellType, GUIStyle>();
+		}
+
+		private Texture2D CreateColorTexture(Color color) {
+			var texture = new Texture2D(1, 1);
+			
+			texture.SetPixel(0, 0, color);
+			texture.Apply();
+
+			return texture;
+		}
+
+		private void SetupStyles() {
+			CreateSimpleStyle(CellType.WALL, Color.black, Color.yellow);
+			CreateSimpleStyle(CellType.FLOOR, Color.black, Color.green);
+			CreateSimpleStyle(CellType.EMPTY, Color.white, Color.blue);
+		}
+
+		private void CreateSimpleStyle(CellType cellType, Color textColor, Color backgroundColor) {
+			var style = new GUIStyle(GUI.skin.GetStyle("Label"));
+
+			style.alignment = TextAnchor.MiddleCenter;
+			style.normal.background = CreateColorTexture(backgroundColor);
+			style.normal.textColor = textColor;
+
+			styles.Add(cellType, style);
+		}
+
+		/* OLD PART BEGINS HERE */
 
 		Vector2 originalPos, currentPos;
 		Vector2 prevPos = new Vector2(-1, -1);
 		bool drawing = false;
 		bool wasDown = false;
-		bool connectRooms = false;
 		bool finished = false;
 
 		IntVector2 size;
 
 		CellType[,] cells;
-		Dictionary<CellType, CellViz> cellVisualizations = new Dictionary<CellType, CellViz>();
 
 		List<RoomDefinition> rooms = new List<RoomDefinition>();
 		RoomDefinition overlayRoom;
 
-		private void Awake() {
-			InitializeTexture(ref wallTexture, Color.yellow);
-			InitializeTexture(ref floorTexture, Color.green);
-			InitializeTexture(ref emptyTexture, Color.blue);
-			InitializeTexture(ref deleteTexture, new Color(1, 0, 0, .125f));
-		}
-
-		private void InitializeTexture(ref Texture2D texture, Color color) {
-			texture = new Texture2D(1, 1);
-
-			texture.SetPixel(0, 0, color);
-			texture.Apply();
-		}
-
 		private void OnGUI() {
-			connectRooms = GUI.Toggle(new Rect(10, 10, 350, 20), connectRooms, " Connect rooms when building");
 
-			if (floorStyle == null) {
-				floorStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
-				wallStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
-				emptyStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
-
-				floorStyle.alignment = wallStyle.alignment = emptyStyle.alignment = TextAnchor.MiddleCenter;
-				floorStyle.normal.textColor = wallStyle.normal.textColor = Color.black;
-
-				floorStyle.normal.background = floorTexture;
-				wallStyle.normal.background = wallTexture;
-				emptyStyle.normal.background = emptyTexture;
-
-				cellVisualizations.Add(CellType.EMPTY, new CellViz() {
-					Style = emptyStyle,
-					Icon = "E"
-				});
-				
-				cellVisualizations.Add(CellType.FLOOR, new CellViz() {
-					Style = floorStyle,
-					Icon = "F"
-				});
-				
-				cellVisualizations.Add(CellType.WALL, new CellViz() {
-					Style = wallStyle,
-					Icon = "W"
-				});
+			if (styles.Count == 0) {
+				SetupStyles();
 			}
 
 			// Draw existing temporary rooms
@@ -98,8 +89,8 @@ namespace SpaceStation.Station.Structure.Room {
 			if (drawing) {
 				Vector2 usePos = originalPos;
 
-				GUI.Label(new Rect(currentPos.x * tileSize, currentPos.y * tileSize, 150, 20), currentPos.ToString());
-				GUI.Label(new Rect(currentPos.x * tileSize, currentPos.y * tileSize + 20, 150, 20), originalPos.ToString());
+				GUI.Label(new Rect(currentPos.x * TileSize, currentPos.y * TileSize, 150, 20), currentPos.ToString());
+				GUI.Label(new Rect(currentPos.x * TileSize, currentPos.y * TileSize + 20, 150, 20), originalPos.ToString());
 
 				if (currentPos.x < originalPos.x) {
 					usePos.x = currentPos.x;
@@ -113,13 +104,11 @@ namespace SpaceStation.Station.Structure.Room {
 			}
 
 			if (overlayRoom != null) {
-				var adjustedBounds = new Rect(overlayRoom.bounds.position * tileSize, overlayRoom.bounds.size * tileSize);
+				var adjustedBounds = new Rect(overlayRoom.bounds.position * TileSize, overlayRoom.bounds.size * TileSize);
 				var buttonPos = new Rect(adjustedBounds.position + adjustedBounds.size / 2, new Vector2(40, 30));
 
 				buttonPos.x -= 20;
 				buttonPos.y -= 15;
-
-				GUI.Box(adjustedBounds, deleteTexture);
 
 				if (GUI.Button(buttonPos, "X")) {
 					rooms.Remove(overlayRoom);
@@ -138,10 +127,10 @@ namespace SpaceStation.Station.Structure.Room {
 
 			for (int x = 0; x < cells.GetLength(0); x++) {
 				for (int z = 0; z < cells.GetLength(1); z++) {
-					var rect = new Rect((origin.x + x) * tileSize, (origin.z + z) * tileSize, tileSize, tileSize);
-					var style = cellVisualizations[cells[x, z]].Style;
+					var rect = new Rect((origin.x + x) * TileSize, (origin.z + z) * TileSize, TileSize, TileSize);
+					var formattedName = cells[x, z].ToString().Substring(0, 1);
 
-					GUI.Label(rect, cellVisualizations[cells[x, z]].Icon, style);
+					GUI.Label(rect, formattedName, styles[cells[x, z]]);
 				}
 			}
 		}
@@ -149,8 +138,8 @@ namespace SpaceStation.Station.Structure.Room {
 		private void Update() {
 			if (Input.GetMouseButtonDown(0)) {
 				originalPos = Input.mousePosition.ToVector2();
-				originalPos.x = Mathf.Floor(originalPos.x / tileSize);
-				originalPos.y = Mathf.Floor((Screen.height - originalPos.y) / tileSize);
+				originalPos.x = Mathf.Floor(originalPos.x / TileSize);
+				originalPos.y = Mathf.Floor((Screen.height - originalPos.y) / TileSize);
 
 				wasDown = true;
 
@@ -165,8 +154,8 @@ namespace SpaceStation.Station.Structure.Room {
 			if (Input.GetMouseButton(0)) {
 
 				currentPos = Input.mousePosition.ToVector2();
-				currentPos.x = Mathf.Floor(currentPos.x / tileSize);
-				currentPos.y = Mathf.Floor((Screen.height - currentPos.y) / tileSize);
+				currentPos.x = Mathf.Floor(currentPos.x / TileSize);
+				currentPos.y = Mathf.Floor((Screen.height - currentPos.y) / TileSize);
 
 				if (currentPos != prevPos) {
 					size = new IntVector2((int)Mathf.Abs(currentPos.x - originalPos.x), (int)Mathf.Abs(currentPos.y - originalPos.y));
@@ -191,7 +180,7 @@ namespace SpaceStation.Station.Structure.Room {
 					
 					foreach (RoomDefinition room in rooms) {
 						var mousePos = Input.mousePosition;
-						var adjustedBounds = new Rect(room.bounds.position * tileSize, room.bounds.size * tileSize);
+						var adjustedBounds = new Rect(room.bounds.position * TileSize, room.bounds.size * TileSize);
 						
 						mousePos.y = Screen.height - mousePos.y;
 						
@@ -245,62 +234,10 @@ namespace SpaceStation.Station.Structure.Room {
 				}
 			}
 
-			if (connectRooms) {
-				finalCells = ConnectRooms(finalCells);
-			}
-
 			this.rooms.Clear();
 
 			this.cells = finalCells;
 			this.finished = true;
-		}
-
-		private CellType[,] ConnectRooms(CellType[,] cells) {
-
-			Logger.Info("ConnectRooms", "Removing inner walls");
-
-			for (int x = 0; x < cells.GetLength(0); x++) {
-				for (int z = 0; z < cells.GetLength(1); z++) {
-					bool isOuterWall = false;
-
-					if (cells[x, z] != CellType.WALL) {
-						continue;
-					}
-
-					if (x == 0 || x == cells.GetLength(0) - 1 || z == 0 || z == cells.GetLength(1) - 1) {
-						continue;
-					} else {
-						var neighbors = new CellType[8];
-
-						// Top row
-						neighbors[0] = cells[x - 1, z - 1];
-						neighbors[1] = cells[x, z - 1];
-						neighbors[2] = cells[x + 1, z - 1];
-
-						// Center row
-						neighbors[3] = cells[x - 1, z];
-						neighbors[4] = cells[x + 1, z];
-
-						// Bottom row
-						neighbors[5] = cells[x - 1, z + 1];
-						neighbors[6] = cells[x, z + 1];
-						neighbors[7] = cells[x + 1, z + 1];
-
-						for (int i = 0; i < neighbors.Length; i++) {
-							if (neighbors[i] == CellType.EMPTY) {
-								isOuterWall = true;
-								break;
-							}
-						}
-
-						if (!isOuterWall) {
-							cells[x, z] = CellType.FLOOR;
-						}
-					}
-				}
-			}
-
-			return cells;
 		}
 
 		public void Reset() {
