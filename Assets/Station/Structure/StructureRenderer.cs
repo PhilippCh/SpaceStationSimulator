@@ -9,7 +9,7 @@ using SpaceStation.Station.Structure.Cell;
 
 namespace SpaceStation.Station.Structure {
 
-	public class StructureRenderer {
+	public class StructureRenderer : IStructureRenderer {
 
 		private const string CELL_PREFAB_DIR = "Prefabs/";
 

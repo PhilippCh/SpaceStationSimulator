@@ -8,7 +8,9 @@ namespace SpaceStation.Util {
 		public static IntVector2 zero = new IntVector2(0, 0);
 
 		public int x, z;
-		
+
+		public IntVector2(float x, float z) : this((int) x, (int) z) {}
+
 		public IntVector2 (int x, int z) {
 			this.x = x;
 			this.z = z;
@@ -69,6 +71,10 @@ namespace SpaceStation.Util {
 
 		public static IntVector3 ToIntVector3(this Vector3 original) {
 			return new IntVector3((int) original.x, (int) original.y, (int) original.z);
+		}
+
+		public static Vector2 ToVector2(this Vector3 original) {
+			return new Vector2(original.x, original.y);
 		}
 	}
 }

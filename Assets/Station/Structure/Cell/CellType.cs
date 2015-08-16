@@ -2,14 +2,15 @@
 using System.Collections;
 
 using SpaceStation;
+using System;
 
 namespace SpaceStation.Station.Structure.Cell {
-	
-	public enum CellType {
-		INVALID = -1,
-		EMPTY,
 
-		FLOOR,
+	[Flags]
+	public enum CellType {
+		EMPTY = 16,
+
+		FLOOR = 0,
 
 		WALL_NORTH,
 		WALL_EAST,
@@ -31,6 +32,10 @@ namespace SpaceStation.Station.Structure.Cell {
 		WALL_OUTER_EDGE_NORTHWEST,
 		WALL_OUTER_EDGE_SOUTHEAST,
 		WALL_OUTER_EDGE_SOUTHWEST,
+	}
+
+	public enum TileMask {
+
 	}
 
 }

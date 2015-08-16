@@ -20,7 +20,7 @@ namespace SpaceStation.Station.Structure {
 		public Transform CellContainer;
 
 		private Region activeRegion;
-		private StructureRenderer structureRenderer;
+		private IStructureRenderer structureRenderer;
 
 		public RegionManager() {
 			Instance = this;
@@ -63,7 +63,7 @@ namespace SpaceStation.Station.Structure {
 					var position = new IntVector3(x, 0, z);
 					var cell = GetCellAt(position);
 				
-					if (cell != CellType.INVALID && cell != CellType.EMPTY) {
+					if (cell != CellType.EMPTY) {
 						structureRenderer.EnableCell(position, cell);
 					}
 				}	

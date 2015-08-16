@@ -37,7 +37,7 @@ namespace SpaceStation.Station.Structure {
 		public CellType GetCell(IntVector3 position) {
 			if (!bounds.Contains(position)) {
 				Logger.Warn("GetCell", "Cell index out of bounds. {0}", position);
-				return CellType.INVALID;
+				return CellType.EMPTY;
 			}
 
 			return cells[position.x + (position.y * CHUNK_SIZE) + (position.z * CHUNK_SIZE)];
