@@ -5,39 +5,61 @@ using SpaceStation;
 using SpaceStation.Util;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
 
 namespace SpaceStation.Station.Structure.Room {
 
-	/* TODO: Unify this with Station.Structure.Cell.CellType */
-	public enum CellType {
-		EMPTY,
-		FLOOR,
-		WALL
-	}
-
 	public class RoomBuilderUI : MonoBehaviour {
 
+		/**
+		 * Not to be confused with Cell.CellType, 
+		 * this enum is only used for our internal room drawing.
+		 */
+		private enum CellType {
+			EMPTY,
+			FLOOR,
+			WALL
+		}
+
+		/**
+		 * This describes the draw mode - either create a full room using walls and floors
+		 * or draw single Wall/Floor/Empty tiles.
+		 */
+		public enum DrawMode {
+			ROOM,
+			SINGLE
+		}
+
+		/**
+		 * Contains information about current, last and origin (OnMouseDown) mouse positions.
+		 */
 		private struct MouseData {
 			public IntVector2 originPosition;
 			public IntVector2 currentPosition;
 			public IntVector2 lastPosition;
 
+			public bool wasPressed;
+
 			public bool HasMoved() {
-				return currentPosition.x != lastPosition.x || currentPosition.z != lastPosition.z;
+				return currentPosition.x != lastPosition.x || 
+					   currentPosition.z != lastPosition.z;
 			}
 
-			public bool isPressed;
-		}
-
-		private enum SelectionMode {
-			ROOM,
-			SINGLE
+			public bool IsInsideArea(int areaSize) {
+				return currentPosition.x >= 0 && 
+					   currentPosition.z >= 0 && 
+					   currentPosition.x < areaSize && 
+					   currentPosition.z < areaSize;
+			}
 		}
 
 		public int TileSize = 24;
 		public int AreaSize = 16;
 
+		public DrawMode drawMode = DrawMode.ROOM;
+
 		private Dictionary<CellType, GUIStyle> styles;
+		private Dictionary<DrawMode, Action> drawModeActions;
 
 		private CellType[,] cells;
 
@@ -45,10 +67,16 @@ namespace SpaceStation.Station.Structure.Room {
 		private IntVector2 temporaryOrigin;
 		private IntVector2 temporarySize;
 
+		private CellType drawCellType = CellType.WALL;
+
 		private MouseData mouseData;
 
 		public RoomBuilderUI() {
 			styles = new Dictionary<CellType, GUIStyle>();
+			drawModeActions = new Dictionary<DrawMode, Action>();
+
+			drawModeActions.Add(DrawMode.ROOM, DrawRoomAction);
+			drawModeActions.Add(DrawMode.SINGLE, DrawSingleAction);
 		}
 
 		/**
@@ -195,29 +223,38 @@ namespace SpaceStation.Station.Structure.Room {
 			/* Set origin coordinates if new click was detected */
 			if (Input.GetMouseButtonDown(0)) {
 				mouseData.originPosition = ConvertScreenToTileCoords(Input.mousePosition);
-				mouseData.isPressed = true;
+				mouseData.wasPressed = true;
 			}
 
 			/* Drag to create a temporary room (created upon release) */
 			if (Input.GetMouseButton(0)) {
 				mouseData.currentPosition = ConvertScreenToTileCoords(Input.mousePosition);
+			}
+
+			/* Run current draw mode check */
+			drawModeActions[drawMode]();
+		}
+
+		private void DrawRoomAction() {
+
+			if (Input.GetMouseButton(0)) {
 
 				if (mouseData.HasMoved()) {
 					temporarySize.x = Mathf.Abs(mouseData.currentPosition.x - mouseData.originPosition.x);
 					temporarySize.z = Mathf.Abs(mouseData.currentPosition.z - mouseData.originPosition.z);
-
+					
 					this.temporaryCells = new CellType[temporarySize.x, temporarySize.z];
-
+					
 					for (int x = 0; x < temporarySize.x; x++) {
 						for (int z = 0; z < temporarySize.z; z++) {
 							var isWall = (x == 0 || x == temporarySize.x - 1 || z == 0 || z == temporarySize.z - 1);
-
+							
 							this.temporaryCells[x, z] = isWall ? CellType.WALL : CellType.FLOOR;
 						}
 					}
-			
+					
 					this.temporaryOrigin = mouseData.originPosition;
-
+					
 					/* Make origin adjustments for negative room sizes */
 					if (mouseData.currentPosition.x < mouseData.originPosition.x) {
 						this.temporaryOrigin.x = mouseData.currentPosition.x;
@@ -226,17 +263,32 @@ namespace SpaceStation.Station.Structure.Room {
 					if (mouseData.currentPosition.z < mouseData.originPosition.z) {
 						this.temporaryOrigin.z = mouseData.currentPosition.z;
 					}
-
+					
 					mouseData.lastPosition = mouseData.currentPosition;
 				}
-			} else if (mouseData.isPressed && this.temporaryCells != null) {
-
+			} else if (mouseData.wasPressed && this.temporaryCells != null) {
+				
 				if (temporarySize.x != 0 && temporarySize.z != 0) {
 					SetCells(this.temporaryOrigin, this.temporaryCells);
 				}
-
-				mouseData.isPressed = false;
+				
+				mouseData.wasPressed = false;
 				this.temporaryCells = null;
+			}
+		}
+
+		private void DrawSingleAction() {
+
+			if (Input.GetMouseButton(0)) {
+				if (!mouseData.IsInsideArea(this.AreaSize)) {
+					return;
+				}
+
+				var targetCell = this.cells[mouseData.currentPosition.x, mouseData.currentPosition.z];
+
+				if (targetCell != drawCellType) {
+					this.cells[mouseData.currentPosition.x, mouseData.currentPosition.z] = drawCellType;
+				}
 			}
 		}
 	}
