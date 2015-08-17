@@ -22,6 +22,7 @@ sysinfo.txt
 
 # External Tools
 *.blend?
+*.blend?.meta
 
 # Space Station Simulator builds
 build/*
