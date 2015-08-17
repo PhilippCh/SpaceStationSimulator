@@ -164,8 +164,8 @@ namespace SpaceStation.Station.Structure.Room {
 				for (int z = 0; z < cells.GetLength(1); z++) {
 					var spacePosition = new IntVector2(origin.x + x, origin.z + z);
 
-					if (spacePosition.x > 0 && spacePosition.x < AreaSize && 
-					    spacePosition.z > 0 && spacePosition.z < AreaSize) {
+					if (spacePosition.x >= 0 && spacePosition.x < AreaSize && 
+					    spacePosition.z >= 0 && spacePosition.z < AreaSize) {
 
 						this.cells[spacePosition.x, spacePosition.z] = cells[x, z];
 					}
