@@ -19,6 +19,14 @@ namespace SpaceStation.Util {
 			Debug.LogError(FormatLogMessage(callee, message, parameters));
 		}
 
+		public static void QuickInfo(string message) {
+			if (!Application.isEditor) {
+				Logger.Warn("Logger", "Using QuickInfo in Release mode.");
+			}
+
+			Debug.Log(message);
+		}
+
 		private static string FormatLogMessage(string callee, string message, params object[] parameters) {
 			string formattedMessage;
 			
