@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 07c308b7832444d72a2f6024d372362a
-timeCreated: 1439138895
+guid: 04bddebf93cbe4f9191c9fe7e2b383e3
+timeCreated: 1439670803
 licenseType: Free
 ModelImporter:
   serializedVersion: 18
@@ -38,7 +38,7 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
-    importBlendShapes: 0
+    importBlendShapes: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -55,7 +55,7 @@ ModelImporter:
     splitTangentsAcrossUV: 1
     normalImportMode: 0
     tangentImportMode: 1
-  importAnimation: 0
+  importAnimation: 1
   copyAvatar: 0
   humanDescription:
     human: []
