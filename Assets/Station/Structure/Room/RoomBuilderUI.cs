@@ -6,8 +6,8 @@ using SpaceStation.Util;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
-using SpaceStation.Station.Object.Structure;
 using SpaceStation.Station.Structure.Cell;
+using SpaceStation.Station.Structure;
 
 namespace SpaceStation.Station.Structure.Room {
 
@@ -56,7 +56,7 @@ namespace SpaceStation.Station.Structure.Room {
 		}
 
 		public int TileSize = 24;
-		public int AreaSize = 16;
+		public int AreaSize = Chunk.CHUNK_SIZE;
 
 		public DrawMode drawMode = DrawMode.ROOM;
 
@@ -175,11 +175,37 @@ namespace SpaceStation.Station.Structure.Room {
 			}
 		}
 
+		public void ApplyToGrid() {
+			var upperBounds = new IntVector2(cells.GetLength(0) - 1, cells.GetLength(1) - 1);
+			var activeChunk = RegionManager.Instance.GetChunkAt(new IntVector3(64, 64, 64));
+
+			LoopHelper.IntXZ(IntVector2.zero, upperBounds, 1, (x, z) => {
+				var absPosition = activeChunk.ConvertRelToAbsPosition(new IntVector3(x, 0, z));
+				var cell = new CellDefinition(absPosition);
+
+				switch (this.cells[x, z]) {
+					case CellType.WALL:
+						cell.wall = new WallDefinition();
+						break;
+
+					case CellType.FLOOR:
+						cell.floor = new FloorDefinition();
+						break;
+				}
+
+				if (!cell.Empty) {
+					activeChunk.SetCell(new IntVector3(x, 0, z), cell);
+				}
+			});
+
+			activeChunk.UpdateAll();
+		}
+
 		/**
 		 * Resets cell data.
 		 */
 		public void Reset() {
-			ShowBuildDialog(new IntVector3(128, 128, 128));
+			ShowBuildDialog(new IntVector3(64));
 			
 			Logger.Info("Reset", "Reset room drawing");
 		}
@@ -188,14 +214,7 @@ namespace SpaceStation.Station.Structure.Room {
 		 * Initializes builder dialog.
 		 */
 		private void Awake() {
-			ShowBuildDialog(new IntVector3(128, 128, 128));
-
-			var wall = new WallObject();
-			wall.OnCreate(new CellStorage() {
-				Position = IntVector3.zero,
-				Rotation = SpaceStation.Station.Object.Rotation.NORTH,
-				Metadata = 0
-			});
+			ShowBuildDialog(new IntVector3(64));
 		}
 
 		/**

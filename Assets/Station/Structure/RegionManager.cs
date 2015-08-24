@@ -35,19 +35,18 @@ namespace SpaceStation.Station.Structure {
 
 		public RegionManager() {
 			Instance = this;
+			activeRegion = new Region();
 		}
 
 		private void Awake() {
-			activeRegion = new Region();
-
-			SetSpawnPosition(defaultSpawnPosition, true);
+			SetSpawnPosition(SpawnPosition.CENTER, true);
 		}
 
 		/** 
 		 * Sets camera position and identity vector.
 		 * The identity vector defined the center point of our universe (e.g. X = Y = Z = 0)
 		 */
-		private void SetSpawnPosition(SpawnPosition position, bool setCamera) {
+		private void SetSpawnPosition(SpawnPosition position, bool setCamera = false) {
 
 			switch (defaultSpawnPosition) {
 				case SpawnPosition.ZERO:
@@ -55,7 +54,7 @@ namespace SpaceStation.Station.Structure {
 					break;
 					
 				case SpawnPosition.CENTER:
-					identityVector = new IntVector3(128, 128, 128);
+					identityVector = new IntVector3(Region.REGION_SIZE / 2);
 					break;
 			}
 
@@ -63,27 +62,43 @@ namespace SpaceStation.Station.Structure {
 				var cameraController = CameraController.GetMainController();
 
 				if (cameraController != null) {
-					cameraController.MoveTo(identityVector, true);
+					cameraController.MoveTo(identityVector * Chunk.CHUNK_SIZE, true);
 				}
 			}
 		}
 
-		public CellContainer GetCellAt(Vector3 position) {
+		public Chunk GetChunkAt(IntVector3 position) {
+			return this.activeRegion.GetChunkAt(position);
+		}
+
+		public CellDefinition GetCellAt(int x, int y, int z) {
+			return GetCellAt(new IntVector3(x, y, z));
+		}
+
+		public CellDefinition GetCellAt(Vector3 position) {
 			return GetCellAt(position.ToIntVector3());
 		}
 
-		public CellContainer GetCellAt(IntVector3 position) {
+		public CellDefinition GetCellAt(IntVector3 position) {
 			var targetChunk = activeRegion.GetChunkAt(position);
-			var relativePos = Chunk.ConvertAbsToRelPosition(position);
 
-			return targetChunk == null ? null : targetChunk.GetCell(relativePos);
+			return targetChunk == null ? null : targetChunk.GetCell(position);
 		}
 
-		public void SetCellAt(IntVector3 position, CellContainer cell) {
+		public void SetCellAt(IntVector3 position, CellDefinition cell) {
 			var targetChunk = activeRegion.GetChunkAt(position);
 			var relativePos = Chunk.ConvertAbsToRelPosition(position);
 			
 			targetChunk.SetCell(relativePos, cell);
+		}
+
+		public Region GetRegionAt(IntVector3 position) {
+			if (!activeRegion.Bounds.Contains(position)) {
+				Logger.Warn("GetRegionAt", "Requested coordinates {0} are outside current region bounds.", position);
+				return null;
+			}
+
+			return activeRegion;
 		}
 
 		public void UpdateRenderedCells(Vector2 targetPos) {

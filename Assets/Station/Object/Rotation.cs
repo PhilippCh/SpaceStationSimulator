@@ -26,7 +26,7 @@ namespace SpaceStation.Station.Object {
 			rotationMap.Add(Rotation.WEST, 270);
 		}
 
-		public static int GetEulerAngle(Rotation rotation) {
+		public static int GetEulerAngle (Rotation rotation) {
 			return rotationMap[rotation];
 		}
 	}

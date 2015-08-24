@@ -13,25 +13,20 @@ namespace SpaceStation.Station.Structure {
 
 		public const int REGION_SIZE = 16;
 
+		public CubeBounds Bounds;
+
 		private Chunk[] chunks;
 
 		public Region() {
-			var indexedSize = (int) Mathf.Pow(REGION_SIZE, 3);
-			chunks = new Chunk[indexedSize];
-		}
+			var indexedSize = (int)Mathf.Pow(REGION_SIZE, 3);
+			var upperBound = (int)Mathf.Pow(REGION_SIZE, 2);
 
-		public bool Contains(IntVector3 position) {
-			int regionUpperBound = (int) Mathf.Pow(REGION_SIZE, 2);
-			bool contains;
-			
-			contains = position.x < regionUpperBound && position.y < regionUpperBound && position.z < regionUpperBound;
-			contains = contains && position.x >= 0 && position.y >= 0 && position.z >= 0;
-			
-			return contains;
+			this.chunks = new Chunk[indexedSize];
+			this.Bounds = new CubeBounds(0, 0, 0, upperBound, upperBound, upperBound);
 		}
 
 		public Chunk GetChunkAt(IntVector3 position) {
-			if (!Contains(position)) {
+			if (!this.Bounds.Contains(position)) {
 				Logger.Warn("GetChunkAt", "Cannot get chunk at {0}, does not belong inside this region.", position);
 				return null;
 			}
@@ -39,24 +34,21 @@ namespace SpaceStation.Station.Structure {
 			var indexedPos = ConvertPositionToIndex(position);
 
 			/* Initialize chunk if it does not exist yet */
-			if (chunks[indexedPos] == null) {
-				chunks[indexedPos] = new Chunk();
+			if (this.chunks[indexedPos] == null) {
+				this.chunks[indexedPos] = new Chunk(position);
 			}
 
-			return chunks[indexedPos];
-		}
-
-		private void InitializeChunk(IntVector3 position) {
-			if (!Contains(position)) {
-				Logger.Warn("InitializeChunk", "Cannot initialize chunk at {0}, does not belong inside this region.", position);
-				return;
-			}
-
-			chunks[ConvertPositionToIndex(position)] = new Chunk();
+			return this.chunks[indexedPos];
 		}
 
 		private int ConvertPositionToIndex(IntVector3 position) {
-			return position.x + (position.y * REGION_SIZE) + (position.z * REGION_SIZE);
+			var relativePos = new IntVector3();
+
+			relativePos.x = (int) Mathf.Floor(position.x / Chunk.CHUNK_SIZE);
+			relativePos.y = (int) Mathf.Floor(position.y / Chunk.CHUNK_SIZE);
+			relativePos.z = (int) Mathf.Floor(position.z / Chunk.CHUNK_SIZE);
+
+			return relativePos.x + (relativePos.y * REGION_SIZE) + (relativePos.z * REGION_SIZE * REGION_SIZE);
 		}
 	}
 

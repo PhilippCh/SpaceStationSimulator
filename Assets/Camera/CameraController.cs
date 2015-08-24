@@ -33,10 +33,13 @@ namespace SpaceStation {
 		}
 
 		public void MoveTo(IntVector3 target, bool instant = false) {
+			Logger.QuickInfo("Moving to" + target.ToString());
 			MoveTo(target.ToVector3(), instant);
 		}
 
 		public void MoveTo(Vector3 target, bool instant = false) {
+			Logger.QuickInfo("Moving to" + target.ToString());
+
 			if (instant) {
 				this.transform.position = target;
 			} else {
