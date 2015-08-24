@@ -32,7 +32,6 @@ namespace SpaceStation.Station.Structure {
 		public IntVector3 identityVector;
 
 		private Region activeRegion;
-		private IStructureRenderer structureRenderer;
 
 		public RegionManager() {
 			Instance = this;
@@ -40,9 +39,6 @@ namespace SpaceStation.Station.Structure {
 
 		private void Awake() {
 			activeRegion = new Region();
-			structureRenderer = new StructureRenderer();
-
-			structureRenderer.Initialize(CellContainer);
 
 			SetSpawnPosition(defaultSpawnPosition, true);
 		}
@@ -72,43 +68,26 @@ namespace SpaceStation.Station.Structure {
 			}
 		}
 
-		public CellType GetCellAt(Vector3 position) {
+		public CellContainer GetCellAt(Vector3 position) {
 			return GetCellAt(position.ToIntVector3());
 		}
 
-		public CellType GetCellAt(IntVector3 position) {
+		public CellContainer GetCellAt(IntVector3 position) {
 			var targetChunk = activeRegion.GetChunkAt(position);
 			var relativePos = Chunk.ConvertAbsToRelPosition(position);
 
-			if (targetChunk == null) {
-				return CellType.EMPTY;
-			} else {
-				return targetChunk.GetCell(relativePos);
-			}
+			return targetChunk == null ? null : targetChunk.GetCell(relativePos);
 		}
 
-		public void SetCellAt(IntVector3 position, CellType cellData) {
+		public void SetCellAt(IntVector3 position, CellContainer cell) {
 			var targetChunk = activeRegion.GetChunkAt(position);
 			var relativePos = Chunk.ConvertAbsToRelPosition(position);
 			
-			targetChunk.SetCell(relativePos, cellData);
+			targetChunk.SetCell(relativePos, cell);
 		}
 
 		public void UpdateRenderedCells(Vector2 targetPos) {
-
-			// For mock purposes, render 10x10x10 slice
-			for (int x = 0; x < 11; x++) {
-				for (int z = 0; z < 11; z++) {
-					var position = new IntVector3(x, 0, z);
-					var cell = GetCellAt(position);
-				
-					if (cell != CellType.EMPTY) {
-						structureRenderer.EnableCell(position, cell);
-					}
-				}	
-			}
-
-			Logger.Info("UpdateRenderedCells", "Finished updating");
+			Logger.Info("UpdateRenderedCells", "TODO: Implement me!");
 		}
 	}
 

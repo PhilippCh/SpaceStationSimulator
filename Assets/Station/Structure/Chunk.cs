@@ -15,12 +15,12 @@ namespace SpaceStation.Station.Structure {
 		/* Base size of a chunk square */
 		public const int CHUNK_SIZE = 16;
 
-		private CellType[] cells;
+		private CellContainer[] cells;
 		private CubeBounds bounds;
 
 		public Chunk() {
 			var indexedSize = (int) Mathf.Pow(CHUNK_SIZE, 3);
-			cells = new CellType[indexedSize];
+			cells = new CellContainer[indexedSize];
 			bounds = new CubeBounds(0, 0, 0, CHUNK_SIZE - 1, CHUNK_SIZE - 1, CHUNK_SIZE - 1);
 		}
 
@@ -34,22 +34,22 @@ namespace SpaceStation.Station.Structure {
 			return relativePos;
 		}
 
-		public CellType GetCell(IntVector3 position) {
+		public CellContainer GetCell(IntVector3 position) {
 			if (!bounds.Contains(position)) {
 				Logger.Warn("GetCell", "Cell index out of bounds. {0}", position);
-				return CellType.EMPTY;
+				return null;
 			}
 
 			return cells[position.x + (position.y * CHUNK_SIZE) + (position.z * CHUNK_SIZE)];
 		}
 
-		public void SetCell(IntVector3 position, CellType cellData) {
+		public void SetCell(IntVector3 position, CellContainer cell) {
 			if (!bounds.Contains(position)) {
 				Logger.Warn("SetCell", "Cell index out of bounds. {0}", position);
 				return;
 			}
 
-			cells[position.x + (position.y * CHUNK_SIZE) + (position.z * CHUNK_SIZE)] = cellData;
+			cells[position.x + (position.y * CHUNK_SIZE) + (position.z * CHUNK_SIZE)] = cell;
 		}
 	}
 

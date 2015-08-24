@@ -6,6 +6,8 @@ using SpaceStation.Util;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using SpaceStation.Station.Object.Structure;
+using SpaceStation.Station.Structure.Cell;
 
 namespace SpaceStation.Station.Structure.Room {
 
@@ -187,6 +189,13 @@ namespace SpaceStation.Station.Structure.Room {
 		 */
 		private void Awake() {
 			ShowBuildDialog(new IntVector3(128, 128, 128));
+
+			var wall = new WallObject();
+			wall.OnCreate(new CellStorage() {
+				Position = IntVector3.zero,
+				Rotation = SpaceStation.Station.Object.Rotation.NORTH,
+				Metadata = 0
+			});
 		}
 
 		/**
