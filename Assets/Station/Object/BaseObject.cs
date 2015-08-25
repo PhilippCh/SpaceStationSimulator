@@ -12,6 +12,9 @@ namespace SpaceStation.Station.Object {
 	public abstract class BaseObject {
 
 		protected CellDefinition cellReference;
+		protected GameObject goReference;
+
+		public abstract void Update(IntVector3 position);
 	}
 
 }

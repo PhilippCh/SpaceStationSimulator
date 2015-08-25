@@ -5,6 +5,7 @@ using SpaceStation;
 using System.Collections.Generic;
 using SpaceStation.Station.Object;
 using SpaceStation.Util;
+using SpaceStation.Game;
 
 namespace SpaceStation.Station.Structure.Cell {
 
@@ -12,8 +13,8 @@ namespace SpaceStation.Station.Structure.Cell {
 
 		private IntVector3 position;
 
-		public WallDefinition wall;
-		public FloorDefinition floor;
+		public WallObject wall;
+		public FloorObject floor;
 
 		public BaseObject containedObject;
 

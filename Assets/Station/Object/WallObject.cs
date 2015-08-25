@@ -5,10 +5,11 @@ using SpaceStation;
 using System.Collections.Generic;
 using SpaceStation.Station.Object;
 using SpaceStation.Util;
+using SpaceStation.Game;
 
 namespace SpaceStation.Station.Structure.Cell {
 
-	public class WallDefinition {
+	public class WallObject : BaseObject {
 
 		public enum WallType {
 			OUTER_DEFAULT,
@@ -26,9 +27,7 @@ namespace SpaceStation.Station.Structure.Cell {
 
 		private static Dictionary<WallType, GameObject> prefabs;
 
-		private GameObject goReference;
-
-		public void Update(IntVector3 position) {
+		public override void Update(IntVector3 position) {
 			PreloadPrefabs();
 
 			if (!prefabs.ContainsKey(this.Type)) {
@@ -36,14 +35,14 @@ namespace SpaceStation.Station.Structure.Cell {
 				return;
 			}
 
-			var neighborCells = new CellDefinition[3, 3];
+			var neighborCells = new List<CellDefinition>();
 
 			/* Grab surrounding block information */
-			LoopHelper.IntXZ(position.ToIntVector2() - 1, position.ToIntVector2() + 1, 1, (x, z) => {
-				var relativePos = new IntVector2(x, z) - (position.ToIntVector2() - 1);
+			foreach (IntVector2 offset in CellRange.Values()) {
+				var absPos = offset + position.ToIntVector2();
 
-				neighborCells[relativePos.x, relativePos.z] = RegionManager.Instance.GetCellAt(x, position.y, z);
-			});
+				//neighborCells[relativePos.x, relativePos.z] = RegionManager.Instance.GetCellAt(absPos.x, position.y, absPos.z);
+			}
 							
 			/* Spawn the new wall object and set transform */
 			var wallObject = prefabs[this.Type].Spawn();

@@ -5,17 +5,17 @@ using SpaceStation;
 using System.Collections.Generic;
 using SpaceStation.Station.Object;
 using SpaceStation.Util;
+using SpaceStation.Game;
 
 namespace SpaceStation.Station.Structure.Cell {
 
-	public class FloorDefinition {
+	public class FloorObject : BaseObject {
 
 		public Texture2D Texture;
 
 		private GameObject floorPrefab;
-		private GameObject goReference;
 
-		public void Update(IntVector3 position) {
+		public override void Update(IntVector3 position) {
 			PreloadPrefabs();
 
 			/* Spawn the new floor object and set transform */

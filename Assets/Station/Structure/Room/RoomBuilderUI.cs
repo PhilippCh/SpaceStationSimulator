@@ -185,11 +185,11 @@ namespace SpaceStation.Station.Structure.Room {
 
 				switch (this.cells[x, z]) {
 					case CellType.WALL:
-						cell.wall = new WallDefinition();
+						cell.wall = new WallObject();
 						break;
 
 					case CellType.FLOOR:
-						cell.floor = new FloorDefinition();
+						cell.floor = new FloorObject();
 						break;
 				}
 
