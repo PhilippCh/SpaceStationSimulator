@@ -22,15 +22,19 @@ namespace SpaceStation.Game {
 			}
 		}
 
-		public const short EmptyId = -1;
-
+		public const short EmptyObjectId = -1;
+		
 		private Dictionary<short, Type> objectsById;
 		private Dictionary<Type, short> objectsByType;
+
+		private Dictionary<Type, CellMask> cellMasks;
 
 		public GameRegistry() {
 			this.objectsById = new Dictionary<short, Type>();
 			this.objectsByType = new Dictionary<Type, short>();
 		}
+
+		#region Objects
 
 		public void RegisterObject<T>(short id) {
 			if (this.objectsById.ContainsKey(id)) {
@@ -40,6 +44,8 @@ namespace SpaceStation.Game {
 
 			this.objectsById.Add(id, typeof(T));
 			this.objectsByType.Add(typeof(T), id);
+
+			Logger.Info("RegisterObject", "Registered object {0} with id {1}.", typeof(T).Name, id);
 		}
 
 		public Type GetObjectType(short id) {
@@ -47,8 +53,10 @@ namespace SpaceStation.Game {
 		}
 
 		public short GetObjectId<T>() {
-			return this.objectsByType.ContainsKey(typeof(T)) ? this.objectsByType[typeof(T)] : (short) -1;
+			return this.objectsByType.ContainsKey(typeof(T)) ? this.objectsByType[typeof(T)] : EmptyObjectId;
 		}
+
+		#endregion
 	}
 
 }

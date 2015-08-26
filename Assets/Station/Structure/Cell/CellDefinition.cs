@@ -18,14 +18,16 @@ namespace SpaceStation.Station.Structure.Cell {
 
 		public BaseObject containedObject;
 
-		public CellDefinition(IntVector3 position) {
-			this.position = position;
+		public static bool IsEmpty(CellDefinition cell) {
+			if (cell == null) {
+				return true;
+			}
+
+			return cell.wall == null && cell.floor == null && cell.containedObject == null;
 		}
 
-		public bool Empty {
-			get {
-				return this.wall == null && this.floor == null && this.containedObject == null;
-			}
+		public CellDefinition(IntVector3 position) {
+			this.position = position;
 		}
 
 		public void Update() {
@@ -39,6 +41,10 @@ namespace SpaceStation.Station.Structure.Cell {
 			if (this.wall != null) {
 				this.wall.Update(this.position);
 			}
+		}
+
+		public bool IsEmpty() {
+			return this.wall == null && this.floor == null && this.containedObject == null;
 		}
 	}
 

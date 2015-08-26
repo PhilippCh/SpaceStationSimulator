@@ -11,6 +11,13 @@ namespace SpaceStation.Station.Structure.Cell {
 
 	public class CellMask {
 
+		private static Rotation[] rotations = new Rotation[] {
+			Rotation.NORTH,
+			Rotation.EAST,
+			Rotation.SOUTH,
+			Rotation.WEST
+		};
+
 		private List<short>[][] templates;
 
 		public CellMask(List<short> nW, List<short> n, List<short> nE, 
@@ -51,6 +58,34 @@ namespace SpaceStation.Station.Structure.Cell {
 			
 			return rotatedList;
 		}
-	}
 
+		public bool Match(List<short> objectIds, out Rotation rotation) {
+			return Match(objectIds.ToArray(), out rotation);
+		}
+
+		public bool Match(short[] objectIds, out Rotation rotation) {
+			rotation = Rotation.NORTH;
+			
+			for (int i = 0; i < (templates.Length); i++) {
+				for (int j = 0; j < 9; j++) {
+					if (j == 4) continue; // Skip checking the centre position (no need to ascertain that a block is what it says it is).
+					
+					if (templates[i][j].Count != 0) {
+						if (templates[i][j].Contains(objectIds[j]) == false) {
+							break;
+						}
+					}
+					
+					if (j == 8) { // The loop has iterated nine times without stopping, so all tiles must match.
+						rotation = rotations[i];
+
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+	}
+	
 }

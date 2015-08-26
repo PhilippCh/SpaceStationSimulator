@@ -31,7 +31,7 @@ namespace SpaceStation.Util {
 			string formattedMessage;
 			
 			// Prepend calling class name to ease debugging
-			formattedMessage = string.Format("[{0}] ", callee);
+			formattedMessage = string.Format("[{0} {1}] ", Time.realtimeSinceStartup, callee);
 			formattedMessage += string.Format(message, parameters);
 
 			return formattedMessage;

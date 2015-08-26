@@ -10,11 +10,12 @@ using SpaceStation.Game;
 
 namespace SpaceStation.Station.Object {
 	
-	public abstract class ObjectManager : MonoBehaviour {
+	public class ObjectManager : MonoBehaviour {
 
 		private GameRegistry registry;
 
 		private void Awake() {
+			registry = GameRegistry.Instance;
 
 			/* Register objects on startup */
 			registry.RegisterObject<WallObject>(0);

@@ -14,6 +14,8 @@ namespace SpaceStation {
 		private Transform followTarget;
 		private Vector3 target;
 
+		private static Vector3 offset = new Vector3(-.5f, 4f, -.5f);
+
 		public static CameraController GetMainController() {
 			var mainCamera = Camera.main;
 
@@ -41,7 +43,7 @@ namespace SpaceStation {
 			Logger.QuickInfo("Moving to" + target.ToString());
 
 			if (instant) {
-				this.transform.position = target;
+				this.transform.position = target + offset;
 			} else {
 				throw new NotImplementedException("Camera smooth movement not implemented.");
 			}

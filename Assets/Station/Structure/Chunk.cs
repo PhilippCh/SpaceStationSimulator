@@ -4,6 +4,8 @@ using System.Collections;
 using SpaceStation;
 using SpaceStation.Util;
 using SpaceStation.Station.Structure.Cell;
+using System.Collections.Generic;
+using System;
 
 namespace SpaceStation.Station.Structure {
 
@@ -16,39 +18,58 @@ namespace SpaceStation.Station.Structure {
 		public const int CHUNK_SIZE = 8;
 		public const int HALF_CHUNK_SIZE = CHUNK_SIZE / 2;
 
+		public Guid ChunkId = Guid.NewGuid();
+
 		public CubeBounds Bounds;
 
 		private CellDefinition[] cells;
+		private List<CellDefinition> dirtyCells;
 
 		private bool isActive;
 
 		public Chunk(IntVector3 position) {
 			var indexedSize = (int) Mathf.Pow(CHUNK_SIZE, 3);
+			var chunkPos = ClampAbsPosition(position);
 
 			this.cells = new CellDefinition[indexedSize];
-			this.Bounds = new CubeBounds(position, CHUNK_SIZE);
+			this.dirtyCells = new List<CellDefinition>(128);
+			this.Bounds = new CubeBounds(chunkPos, CHUNK_SIZE);
+		}
+
+		public static IntVector3 ClampAbsPosition(IntVector3 absPos) {
+			var clampedPos = new IntVector3();
+
+			clampedPos.x = (int)Mathf.Floor(absPos.x / Chunk.CHUNK_SIZE) * CHUNK_SIZE;
+			clampedPos.y = (int)Mathf.Floor(absPos.y / Chunk.CHUNK_SIZE) * CHUNK_SIZE;
+			clampedPos.z = (int)Mathf.Floor(absPos.z / Chunk.CHUNK_SIZE) * CHUNK_SIZE;
+
+			return clampedPos;
 		}
 
 		public static IntVector3 ConvertAbsToRelPosition(IntVector3 absPos) {
-			var relativePos = new IntVector3();
-
-			relativePos.x = absPos.x - ((int)Mathf.Floor(absPos.x / Chunk.CHUNK_SIZE) * CHUNK_SIZE);
-			relativePos.y = absPos.y - ((int) Mathf.Floor(absPos.y / Chunk.CHUNK_SIZE) * CHUNK_SIZE);
-			relativePos.z = absPos.z - ((int) Mathf.Floor(absPos.z / Chunk.CHUNK_SIZE) * CHUNK_SIZE);
-
-			return relativePos;
+			return absPos - ClampAbsPosition(absPos);
 		}
 
 		public IntVector3 ConvertRelToAbsPosition(IntVector3 relPos) {
 			var absolutePos = new IntVector3();
 
 			absolutePos = this.Bounds.Position.ToIntVector3();
-			
+
 			absolutePos.x += relPos.x;
 			absolutePos.y += relPos.y;
 			absolutePos.z += relPos.z;
 			
 			return absolutePos;
+		}
+
+		public void Update() {
+			for (int i = 0; i < this.dirtyCells.Count; i++) {
+
+				if (this.dirtyCells[i] != null) {
+					this.dirtyCells[i].Update();
+					this.dirtyCells.RemoveAt(i);
+				}
+			}
 		}
 
 		public void SetActive() {
@@ -63,16 +84,6 @@ namespace SpaceStation.Station.Structure {
 			this.isActive = true;
 		}
 
-		public void UpdateAll() {
-			LoopHelper.IntXYZ(IntVector3.zero, new IntVector3(Chunk.CHUNK_SIZE - 1), 1, (x, y, z) => {
-				var index = x + (y * Chunk.CHUNK_SIZE) + (z * Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE);
-				
-				if (this.cells[index] != null) {
-					this.cells[index].Update();
-				}
-			});
-		}
-
 		public CellDefinition GetCell(IntVector3 position) {
 			if (!this.Bounds.Contains(position)) {
 				Logger.Warn("GetCell", "Cell index out of bounds. {0}", position);
@@ -84,13 +95,18 @@ namespace SpaceStation.Station.Structure {
 			return cells[relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE)];
 		}
 
-		public void SetCell(IntVector3 relativePosition, CellDefinition cell) {
-			var index = relativePosition.x + (relativePosition.y * CHUNK_SIZE) + (relativePosition.z * CHUNK_SIZE * CHUNK_SIZE);
+		public void SetCell(IntVector3 position, CellDefinition cell) {
+			var relPos = ConvertAbsToRelPosition(position);
+			var index = relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE);
 
 			cells[index] = cell;
 
-			if (this.isActive && cell != null) {
-				var absPosition = ConvertRelToAbsPosition(relativePosition);
+			SetCellDirty(cell);
+		}
+
+		private void SetCellDirty(CellDefinition cell) {
+			if (cell != null && !dirtyCells.Contains(cell)) {
+				dirtyCells.Add(cell);
 			}
 		}
 	}

@@ -25,6 +25,15 @@ namespace SpaceStation.Station.Structure {
 			this.Bounds = new CubeBounds(0, 0, 0, upperBound, upperBound, upperBound);
 		}
 
+		public void Update() {
+			for (int i = 0; i < chunks.Length; i++) {
+
+				if (chunks[i] != null) {
+					chunks[i].Update();
+				}
+			}
+		}
+
 		public Chunk GetChunkAt(IntVector3 position) {
 			if (!this.Bounds.Contains(position)) {
 				Logger.Warn("GetChunkAt", "Cannot get chunk at {0}, does not belong inside this region.", position);
@@ -35,7 +44,7 @@ namespace SpaceStation.Station.Structure {
 
 			/* Initialize chunk if it does not exist yet */
 			if (this.chunks[indexedPos] == null) {
-				this.chunks[indexedPos] = new Chunk(position);
+				this.chunks[indexedPos] = new Chunk(Chunk.ClampAbsPosition(position));
 			}
 
 			return this.chunks[indexedPos];

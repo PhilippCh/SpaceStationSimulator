@@ -41,6 +41,9 @@ namespace SpaceStation.Station.Structure {
 		private void Awake() {
 			SetSpawnPosition(SpawnPosition.CENTER, true);
 		}
+		private void Update() {
+			this.activeRegion.Update();
+		}
 
 		/** 
 		 * Sets camera position and identity vector.
@@ -87,9 +90,8 @@ namespace SpaceStation.Station.Structure {
 
 		public void SetCellAt(IntVector3 position, CellDefinition cell) {
 			var targetChunk = activeRegion.GetChunkAt(position);
-			var relativePos = Chunk.ConvertAbsToRelPosition(position);
 			
-			targetChunk.SetCell(relativePos, cell);
+			targetChunk.SetCell(position, cell);
 		}
 
 		public Region GetRegionAt(IntVector3 position) {

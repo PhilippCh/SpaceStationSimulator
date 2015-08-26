@@ -22,7 +22,7 @@ namespace SpaceStation.Station.Structure.Cell {
 		public static IntVector2 SOUTH = new IntVector2(0, 1);
 		public static IntVector2 SOUTHEAST = new IntVector2(1, 1);
 
-		public static IEnumerable<IntVector2> Values(bool includeCenter = false) {
+		public static IEnumerable<IntVector2> Values2D(bool includeCenter = true) {
 			yield return NORTHWEST;
 			yield return NORTH;
 			yield return NORTHEAST;

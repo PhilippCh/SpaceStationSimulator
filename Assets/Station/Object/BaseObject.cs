@@ -15,6 +15,12 @@ namespace SpaceStation.Station.Object {
 		protected GameObject goReference;
 
 		public abstract void Update(IntVector3 position);
+
+		public void Recycle() {
+			if (this.goReference != null) {
+				this.goReference.Recycle();
+			}
+		}
 	}
 
 }

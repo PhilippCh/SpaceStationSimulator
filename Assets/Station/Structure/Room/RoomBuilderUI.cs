@@ -69,6 +69,8 @@ namespace SpaceStation.Station.Structure.Room {
 		private IntVector2 temporaryOrigin;
 		private IntVector2 temporarySize;
 
+		private CubeBounds bounds;
+
 		private CellType drawCellType = CellType.WALL;
 
 		private MouseData mouseData;
@@ -177,10 +179,10 @@ namespace SpaceStation.Station.Structure.Room {
 
 		public void ApplyToGrid() {
 			var upperBounds = new IntVector2(cells.GetLength(0) - 1, cells.GetLength(1) - 1);
-			var activeChunk = RegionManager.Instance.GetChunkAt(new IntVector3(64, 64, 64));
+			var topLeftCorner = new IntVector3(64, 64, 64);
 
 			LoopHelper.IntXZ(IntVector2.zero, upperBounds, 1, (x, z) => {
-				var absPosition = activeChunk.ConvertRelToAbsPosition(new IntVector3(x, 0, z));
+				var absPosition = topLeftCorner + new IntVector3(x, 0, z);
 				var cell = new CellDefinition(absPosition);
 
 				switch (this.cells[x, z]) {
@@ -193,12 +195,12 @@ namespace SpaceStation.Station.Structure.Room {
 						break;
 				}
 
-				if (!cell.Empty) {
-					activeChunk.SetCell(new IntVector3(x, 0, z), cell);
+				if (!CellDefinition.IsEmpty(cell)) {
+					RegionManager.Instance.SetCellAt(absPosition, cell);
 				}
 			});
 
-			activeChunk.UpdateAll();
+
 		}
 
 		/**

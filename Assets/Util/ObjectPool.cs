@@ -20,7 +20,9 @@ namespace SpaceStation.Util {
 		
 		Dictionary<GameObject, List<GameObject>> pooledObjects = new Dictionary<GameObject, List<GameObject>>();
 		Dictionary<GameObject, GameObject> spawnedObjects = new Dictionary<GameObject, GameObject>();
-		
+
+		public Transform Container;
+
 		public StartupPoolMode startupPoolMode;
 		public StartupPool[] startupPools;
 
@@ -29,6 +31,7 @@ namespace SpaceStation.Util {
 		void Awake()
 		{
 			_instance = this;
+
 			if (startupPoolMode == StartupPoolMode.Awake)
 				CreateStartupPools();
 		}
@@ -107,6 +110,7 @@ namespace SpaceStation.Util {
 			List<GameObject> list;
 			Transform trans;
 			GameObject obj;
+
 			if (instance.pooledObjects.TryGetValue(prefab, out list))
 			{
 				obj = null;
@@ -125,7 +129,6 @@ namespace SpaceStation.Util {
 						trans.localRotation = rotation;
 						obj.SetActive(true);
 						instance.spawnedObjects.Add(obj, prefab);
-						return obj;
 					}
 				}
 				obj = (GameObject)Object.Instantiate(prefab);
@@ -134,7 +137,6 @@ namespace SpaceStation.Util {
 				trans.localPosition = position;
 				trans.localRotation = rotation;
 				instance.spawnedObjects.Add(obj, prefab);
-				return obj;
 			}
 			else
 			{
@@ -143,8 +145,13 @@ namespace SpaceStation.Util {
 				trans.parent = parent;
 				trans.localPosition = position;
 				trans.localRotation = rotation;
-				return obj;
 			}
+
+			if (obj != null && instance.Container != null) {
+				obj.transform.parent = instance.Container;
+			}
+
+			return obj;
 		}
 		public static GameObject Spawn(GameObject prefab, Transform parent, Vector3 position)
 		{

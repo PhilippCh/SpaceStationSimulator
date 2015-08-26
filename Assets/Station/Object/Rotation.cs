@@ -20,10 +20,10 @@ namespace SpaceStation.Station.Object {
 		static RotationHelper() {
 			rotationMap = new Dictionary<Rotation, int>();
 
-			rotationMap.Add(Rotation.NORTH, 0);
-			rotationMap.Add(Rotation.EAST, 90);
-			rotationMap.Add(Rotation.SOUTH, 180);
-			rotationMap.Add(Rotation.WEST, 270);
+			rotationMap.Add(Rotation.NORTH, 90);
+			rotationMap.Add(Rotation.EAST, 0);
+			rotationMap.Add(Rotation.SOUTH, 270);
+			rotationMap.Add(Rotation.WEST, 180);
 		}
 
 		public static int GetEulerAngle (Rotation rotation) {

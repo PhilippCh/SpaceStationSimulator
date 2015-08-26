@@ -17,16 +17,19 @@ namespace SpaceStation.Station.Structure.Cell.Mask {
 
 		private Dictionary<WallObject.WallType, CellMask> masks;
 
-		public void Initialize() {
-			if (masks != null) {
-				return;
+		public CellMask this[WallObject.WallType i]
+		{
+			get { 
+				return masks[i]; 
 			}
+		}
 
+		public WallMask() {
 			registry = GameRegistry.Instance;
 
 			wall = new List<short>() { registry.GetObjectId<WallObject>() };
 			floor = new List<short>() { registry.GetObjectId<FloorObject>() };
-			empty = new List<short>() { GameRegistry.EmptyId };
+			empty = new List<short>() { GameRegistry.EmptyObjectId };
 			any = new List<short>();
 
 			masks = new Dictionary<WallObject.WallType, CellMask>();
