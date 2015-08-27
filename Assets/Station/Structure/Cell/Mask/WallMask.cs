@@ -37,12 +37,17 @@ namespace SpaceStation.Station.Structure.Cell.Mask {
 			masks.Add(WallObject.WallType.OUTER_DEFAULT, new CellMask(
 				any,	empty,	any, 
 				wall,	wall,	wall,
-				any,	any,	any
+				any,	floor,	any
 			));
-			masks.Add(WallObject.WallType.OUTER_EDGE, new CellMask(
+			masks.Add(WallObject.WallType.OUTER_EDGE_OUTER, new CellMask(
 				any,	empty,	any, 
 				empty,	wall,	wall,
 				any,	wall,	any
+			));
+			masks.Add(WallObject.WallType.OUTER_EDGE_INNER, new CellMask(
+				any,	wall,	any, 
+				wall,	wall,	floor,
+				any,	floor,	any
 				));
 		}
 	}

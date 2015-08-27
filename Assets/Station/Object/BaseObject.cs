@@ -16,6 +16,10 @@ namespace SpaceStation.Station.Object {
 
 		public abstract void Update(IntVector3 position);
 
+		public void Destroy() {
+			this.Recycle();
+		}
+
 		public void Recycle() {
 			if (this.goReference != null) {
 				this.goReference.Recycle();

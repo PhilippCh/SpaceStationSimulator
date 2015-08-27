@@ -83,6 +83,20 @@ namespace SpaceStation.Station.Structure.Room {
 			drawModeActions.Add(DrawMode.SINGLE, DrawSingleAction);
 		}
 
+		public void OnModeToggle(bool roomMode) {
+			this.drawMode = roomMode ? DrawMode.ROOM : DrawMode.SINGLE;
+		}
+
+		public void OnTileTypeToggle() {
+			var wallType = GameObject.Find("WallRadio").GetComponent<Toggle>().isOn;
+			var floorType = GameObject.Find("FloorRadio").GetComponent<Toggle>().isOn;
+			var emptyType = GameObject.Find("EmptyRadio").GetComponent<Toggle>().isOn;
+
+			if (wallType) { this.drawCellType = CellType.WALL; }
+			if (floorType) { this.drawCellType = CellType.FLOOR; }
+			if (emptyType) { this.drawCellType = CellType.EMPTY; }
+		}
+
 		/**
 		 * Prepares all UI to show the room editing dialog.
 		 * This should be the central entry point for all other scripts referencing the room builder.
@@ -183,20 +197,33 @@ namespace SpaceStation.Station.Structure.Room {
 
 			LoopHelper.IntXZ(IntVector2.zero, upperBounds, 1, (x, z) => {
 				var absPosition = topLeftCorner + new IntVector3(x, 0, z);
-				var cell = new CellDefinition(absPosition);
+				var cell = RegionManager.Instance.GetCellAt(absPosition);
+
+				/* If cell was empty and we don't want anything there, return */
+				if (this.cells[x, z] == CellType.EMPTY && cell == null) {
+					return;
+				}
+
+				/* Otherwise, create a new cell if we need to add something here */
+				if (cell == null) {
+					cell = RegionManager.Instance.CreateCellAt(absPosition);
+				}
 
 				switch (this.cells[x, z]) {
 					case CellType.WALL:
-						cell.wall = new WallObject();
+						cell.CreateWall();
 						break;
 
 					case CellType.FLOOR:
-						cell.floor = new FloorObject();
+						cell.CreateFloor();
 						break;
-				}
 
-				if (!CellDefinition.IsEmpty(cell)) {
-					RegionManager.Instance.SetCellAt(absPosition, cell);
+					/* This is a special case! If something was here previously,
+					 * we need to destroy the whole cell.
+					 */
+					case CellType.EMPTY:
+						cell.Destroy();
+						break;
 				}
 			});
 

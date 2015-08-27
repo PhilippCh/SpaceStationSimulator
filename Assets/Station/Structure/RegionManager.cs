@@ -88,6 +88,17 @@ namespace SpaceStation.Station.Structure {
 			return targetChunk == null ? null : targetChunk.GetCell(position);
 		}
 
+		public CellDefinition CreateCellAt(IntVector3 position) {
+			var targetChunk = activeRegion.GetChunkAt(position);
+
+			if (targetChunk == null) {
+				Logger.Warn("CreateCellAt", "Could not create cell at {0}, position out of bounds.", position);
+				return null;
+			}
+
+			return targetChunk.CreateCell(position);
+		}
+
 		public void SetCellAt(IntVector3 position, CellDefinition cell) {
 			var targetChunk = activeRegion.GetChunkAt(position);
 			

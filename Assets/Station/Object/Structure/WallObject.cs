@@ -16,7 +16,8 @@ namespace SpaceStation.Station.Structure.Cell {
 			INVALID,
 
 			OUTER_DEFAULT,
-			OUTER_EDGE
+			OUTER_EDGE_OUTER,
+			OUTER_EDGE_INNER
 		}
 
 		private enum NeighborType {
@@ -74,17 +75,18 @@ namespace SpaceStation.Station.Structure.Cell {
 							
 			if (containsEmptySpaces && containsOtherWalls) {
 				validMasks.Add(WallType.OUTER_DEFAULT, masks[WallType.OUTER_DEFAULT]);
-				validMasks.Add(WallType.OUTER_EDGE, masks[WallType.OUTER_EDGE]);
+				validMasks.Add(WallType.OUTER_EDGE_OUTER, masks[WallType.OUTER_EDGE_OUTER]);
 			}
+
+			validMasks.Add(WallType.OUTER_EDGE_INNER, masks[WallType.OUTER_EDGE_INNER]);
 
 			var calculatedType = WallType.OUTER_DEFAULT;
 			var calculatedRotation = Rotation.NORTH;
-
+		
 			foreach (var wallType in validMasks.Keys) {
 
 				if (validMasks[wallType].Match(neighborCells, out calculatedRotation)) {
 					calculatedType = wallType;
-					Logger.QuickInfo("found match");
 					break;
 				}
 			}
@@ -107,7 +109,8 @@ namespace SpaceStation.Station.Structure.Cell {
 			prefabs = new Dictionary<WallType, GameObject>();
 							
 			prefabs.Add(WallType.OUTER_DEFAULT, Resources.Load("Prefabs/wallOuter") as GameObject);
-			prefabs.Add(WallType.OUTER_EDGE, Resources.Load("Prefabs/wallEdgeOuter") as GameObject);
+			prefabs.Add(WallType.OUTER_EDGE_OUTER, Resources.Load("Prefabs/wallEdgeOuter") as GameObject);
+			prefabs.Add(WallType.OUTER_EDGE_INNER, Resources.Load("Prefabs/wallEdgeInner") as GameObject);
 		}
 
 		private void PreloadMasks() {

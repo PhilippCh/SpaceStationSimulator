@@ -16,13 +16,18 @@ namespace SpaceStation.Station.Structure.Cell {
 		private GameObject floorPrefab;
 
 		public override void Update(IntVector3 position) {
-			PreloadPrefabs();
 
-			/* Spawn the new floor object and set transform */
-			this.goReference = floorPrefab.Spawn();
+			/* Spawn floor object and initialize if it does not exist yet */
+			if (this.goReference == null) {
+				PreloadPrefabs();
 
-			this.goReference.transform.position = position.ToVector3();
-			this.goReference.transform.eulerAngles = floorPrefab.transform.eulerAngles;
+				this.goReference = floorPrefab.Spawn();
+				
+				this.goReference.transform.position = position.ToVector3();
+				this.goReference.transform.eulerAngles = floorPrefab.transform.eulerAngles;
+			}
+
+			/* TODO: Add texture update logic */
 		}
 
 		private void PreloadPrefabs() {

@@ -95,19 +95,53 @@ namespace SpaceStation.Station.Structure {
 			return cells[relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE)];
 		}
 
-		public void SetCell(IntVector3 position, CellDefinition cell) {
-			var relPos = ConvertAbsToRelPosition(position);
-			var index = relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE);
+		public CellDefinition CreateCell(IntVector3 position) {
+			var index = ConvertAbsPositionToIndex(position);
 
-			cells[index] = cell;
+			if (cells[index] != null) {
+				Logger.Warn("CreateCell", "Cell at {0} already exists.", position);
+				return cells[index];
+			}
+
+			cells[index] = new CellDefinition(position, this);
+
+			return cells[index];
+		}
+
+		public void DestroyCellAt(IntVector3 position) {
+			var index = ConvertAbsPositionToIndex(position);
+
+			if (cells[index] != null) {
+				cells[index].Destroy();
+				cells[index] = null;
+			}
+		}
+
+		[System.Obsolete("Use direct cell reference instead")]
+		public void SetCell(IntVector3 position, CellDefinition cell) {
+			var index = ConvertAbsPositionToIndex(position);
+
+			if (!cells[index].Equals(cell)) {
+				cells[index] = cell;
+			}
 
 			SetCellDirty(cell);
 		}
 
-		private void SetCellDirty(CellDefinition cell) {
+		public void SetCellDirty(CellDefinition cell) {
 			if (cell != null && !dirtyCells.Contains(cell)) {
 				dirtyCells.Add(cell);
 			}
+		}
+
+		private int ConvertAbsPositionToIndex(IntVector3 absPos) {
+			var relPos = ConvertAbsToRelPosition(absPos);
+
+			return ConvertRelPositionToIndex(relPos);
+		}
+
+		private int ConvertRelPositionToIndex(IntVector3 relPos) {
+			return relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE);
 		}
 	}
 
