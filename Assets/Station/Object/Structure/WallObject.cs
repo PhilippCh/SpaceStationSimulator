@@ -13,14 +13,6 @@ namespace SpaceStation.Station.Object {
 
 	public class WallObject : BaseObject {
 
-		public enum WallType {
-			INVALID,
-
-			OUTER_DEFAULT,
-			OUTER_EDGE_OUTER,
-			OUTER_EDGE_INNER
-		}
-
 		private enum NeighborType {
 			EMPTY,
 			FLOOR,
@@ -37,12 +29,13 @@ namespace SpaceStation.Station.Object {
 		}
 
 		public override void Update(IntVector3 position) {
-			var cellMasks = registry.WallObjectHelper.Masks;
-
 			var neighborCells = new short[9];
 			var validMasks = new Dictionary<WallType, CellMask>(5);
+
+			/* Properties used to refine valid tile masks */
 			var containsEmptySpaces = false;
 			var containsOtherWalls = false;
+			var wallCount = 0;
 
 			var cellCounter = -1;
 
@@ -67,6 +60,7 @@ namespace SpaceStation.Station.Object {
 						containsOtherWalls = containsOtherWalls || cell.wall != null;
 					}
 
+					wallCount++;
 					neighborCells[cellCounter] = registry.GetObjectId<WallObject>();
 				} else if (cell.floor != null) {
 					neighborCells[cellCounter] = registry.GetObjectId<FloorObject>();
@@ -74,23 +68,44 @@ namespace SpaceStation.Station.Object {
 					neighborCells[cellCounter] = GameRegistry.EmptyObjectId;
 				}
 			}
-							
-			if (containsEmptySpaces && containsOtherWalls) {
-				validMasks.Add(WallType.OUTER_DEFAULT, cellMasks[WallType.OUTER_DEFAULT]);
-				validMasks.Add(WallType.OUTER_EDGE_OUTER, cellMasks[WallType.OUTER_EDGE_OUTER]);
-			}
 
-			validMasks.Add(WallType.OUTER_EDGE_INNER, cellMasks[WallType.OUTER_EDGE_INNER]);
+			if (containsOtherWalls) {
+
+				/* Default walls */
+				AddValidMask(WallType.INNER_DEFAULT, validMasks);
+				AddValidMask(WallType.INNER_END, validMasks);
+
+				if (wallCount >= 3) {
+					AddValidMask(WallType.INNER_EDGE_INNER, validMasks);
+					AddValidMask(WallType.INNER_EDGE_T, validMasks);
+				}
+
+				if (containsEmptySpaces) {
+					
+					AddValidMask(WallType.OUTER_DEFAULT, validMasks);
+
+					if (wallCount >= 3) {
+						AddValidMask(WallType.OUTER_EDGE_OUTER, validMasks);
+						AddValidMask(WallType.OUTER_EDGE_INNER, validMasks);
+					}
+				}
+			}
 
 			var calculatedType = WallType.OUTER_DEFAULT;
 			var calculatedRotation = Rotation.NORTH;
-		
+			var foundMatch = false;
+
 			foreach (var wallType in validMasks.Keys) {
 
 				if (validMasks[wallType].Match(neighborCells, out calculatedRotation)) {
 					calculatedType = wallType;
+					foundMatch = true;
 					break;
 				}
+			}
+
+			if (!foundMatch) {
+				Logger.Warn("Could not find matching type for wall at {0}", position);
 			}
 
 			/* Spawn the new wall object and set transform */
@@ -99,6 +114,12 @@ namespace SpaceStation.Station.Object {
 			} else if (this.Rotation != calculatedRotation) {
 				SetRotation(calculatedRotation);
 			}
+		}
+
+		private void AddValidMask(WallType type, Dictionary<WallType, CellMask> validMasks) {
+			var cellMasks = registry.WallObjectHelper.Masks;
+
+			validMasks.Add(type, cellMasks[type]);
 		}
 
 		private void SpawnWall(WallType type, IntVector3 position, Rotation rotation) {
