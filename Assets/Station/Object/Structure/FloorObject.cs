@@ -7,7 +7,7 @@ using SpaceStation.Station.Object;
 using SpaceStation.Util;
 using SpaceStation.Game;
 
-namespace SpaceStation.Station.Structure.Cell {
+namespace SpaceStation.Station.Object {
 
 	public class FloorObject : BaseObject {
 

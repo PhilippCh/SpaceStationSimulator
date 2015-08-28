@@ -22,8 +22,11 @@ namespace SpaceStation.Game {
 			}
 		}
 
+		public const short InvalidObjectId = -100;
 		public const short EmptyObjectId = -1;
-		
+
+		public WallObjectHelper WallObjectHelper;
+
 		private Dictionary<short, Type> objectsById;
 		private Dictionary<Type, short> objectsByType;
 
@@ -34,18 +37,22 @@ namespace SpaceStation.Game {
 			this.objectsByType = new Dictionary<Type, short>();
 		}
 
+		public void PostAwake() {
+			this.WallObjectHelper = new WallObjectHelper();
+		}
+
 		#region Objects
 
 		public void RegisterObject<T>(short id) {
 			if (this.objectsById.ContainsKey(id)) {
-				Logger.Warn("RegisterObject", "Registering Object {0} with id {1} failed, id is already assigned to {2}.", typeof(T).Name, id, this.objectsById[id].Name);
+				Logger.Warn("Registering Object {0} with id {1} failed, id is already assigned to {2}.", typeof(T).Name, id, this.objectsById[id].Name);
 				return;
 			}
 
 			this.objectsById.Add(id, typeof(T));
 			this.objectsByType.Add(typeof(T), id);
 
-			Logger.Info("RegisterObject", "Registered object {0} with id {1}.", typeof(T).Name, id);
+			Logger.Info("Registered object {0} with id {1}.", typeof(T).Name, id);
 		}
 
 		public Type GetObjectType(short id) {
@@ -53,7 +60,12 @@ namespace SpaceStation.Game {
 		}
 
 		public short GetObjectId<T>() {
-			return this.objectsByType.ContainsKey(typeof(T)) ? this.objectsByType[typeof(T)] : EmptyObjectId;
+			if (!this.objectsByType.ContainsKey(typeof(T))) {
+				Logger.Warn("Could not find object id for {0}.", typeof(T).Name);
+				return InvalidObjectId;
+			}
+
+			return this.objectsByType[typeof(T)];
 		}
 
 		#endregion

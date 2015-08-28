@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using SpaceStation.Station.Object;
 using SpaceStation.Util;
 using SpaceStation.Game;
-using SpaceStation.Station.Structure.Cell.Mask;
+using SpaceStation.Station.Structure.Cell;
+using SpaceStation.Station.Structure;
 
-namespace SpaceStation.Station.Structure.Cell {
+namespace SpaceStation.Station.Object {
 
 	public class WallObject : BaseObject {
 
@@ -29,16 +30,17 @@ namespace SpaceStation.Station.Structure.Cell {
 		public Rotation Rotation;
 		public WallType Type;
 
-		private static WallMask masks;
-		private static Dictionary<WallType, GameObject> prefabs;
+		private GameRegistry registry;
+
+		public WallObject() {
+			this.registry = GameRegistry.Instance;
+		}
 
 		public override void Update(IntVector3 position) {
-			PreloadPrefabs();
-			PreloadMasks();
+			var cellMasks = registry.WallObjectHelper.Masks;
 
 			var neighborCells = new short[9];
 			var validMasks = new Dictionary<WallType, CellMask>(5);
-			var registry = GameRegistry.Instance;
 			var containsEmptySpaces = false;
 			var containsOtherWalls = false;
 
@@ -74,11 +76,11 @@ namespace SpaceStation.Station.Structure.Cell {
 			}
 							
 			if (containsEmptySpaces && containsOtherWalls) {
-				validMasks.Add(WallType.OUTER_DEFAULT, masks[WallType.OUTER_DEFAULT]);
-				validMasks.Add(WallType.OUTER_EDGE_OUTER, masks[WallType.OUTER_EDGE_OUTER]);
+				validMasks.Add(WallType.OUTER_DEFAULT, cellMasks[WallType.OUTER_DEFAULT]);
+				validMasks.Add(WallType.OUTER_EDGE_OUTER, cellMasks[WallType.OUTER_EDGE_OUTER]);
 			}
 
-			validMasks.Add(WallType.OUTER_EDGE_INNER, masks[WallType.OUTER_EDGE_INNER]);
+			validMasks.Add(WallType.OUTER_EDGE_INNER, cellMasks[WallType.OUTER_EDGE_INNER]);
 
 			var calculatedType = WallType.OUTER_DEFAULT;
 			var calculatedRotation = Rotation.NORTH;
@@ -99,31 +101,11 @@ namespace SpaceStation.Station.Structure.Cell {
 			}
 		}
 
-		private void PreloadPrefabs() {
-			if (prefabs != null) {
-				return;
-			}
-
-			Logger.Info("WallObject", "Loading variant prefabs.");
-
-			prefabs = new Dictionary<WallType, GameObject>();
-							
-			prefabs.Add(WallType.OUTER_DEFAULT, Resources.Load("Prefabs/wallOuter") as GameObject);
-			prefabs.Add(WallType.OUTER_EDGE_OUTER, Resources.Load("Prefabs/wallEdgeOuter") as GameObject);
-			prefabs.Add(WallType.OUTER_EDGE_INNER, Resources.Load("Prefabs/wallEdgeInner") as GameObject);
-		}
-
-		private void PreloadMasks() {
-			if (masks != null) {
-				return;
-			}
-
-			masks = new WallMask();
-		}
-
 		private void SpawnWall(WallType type, IntVector3 position, Rotation rotation) {
+			var prefabs = registry.WallObjectHelper.Prefabs;
+
 			if (!prefabs.ContainsKey(type)) {
-				Logger.Warn("CreateAt", "Could not load prefab for type {0}.", type);
+				Logger.Warn("Could not load prefab for type {0}.", type);
 				return;
 			}
 
@@ -134,10 +116,11 @@ namespace SpaceStation.Station.Structure.Cell {
 			this.Type = type;
 
 			SetRotation(rotation);
-			Logger.Info("SpawnWall", "Spawned wall {0} at {1} {2}.", type, position, this.goReference.transform.eulerAngles);
+			Logger.Info("Spawned wall {0} at {1} {2}.", type, position, this.goReference.transform.eulerAngles);
 		}
 
 		private void SetRotation(Rotation rotation) {
+			var prefabs = registry.WallObjectHelper.Prefabs;
 			var prefabRotation = prefabs[this.Type].transform.eulerAngles;
 
 			prefabRotation.y = RotationHelper.GetEulerAngle(rotation);

@@ -20,14 +20,14 @@ namespace SpaceStation {
 			var mainCamera = Camera.main;
 
 			if (mainCamera == null) {
-				Logger.Error("GetMainController", "No main camera present in scene.");
+				Logger.Error("No main camera present in scene.");
 				return null;
 			}
 
 			var controller = mainCamera.GetComponent<CameraController>();
 
 			if (controller == null) {
-				Logger.Error("GetMainController", "Main camera has no controller attached.");
+				Logger.Error("Main camera has no controller attached.");
 				return null;
 			}
 
