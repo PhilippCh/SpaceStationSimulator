@@ -80,6 +80,10 @@ namespace SpaceStation.Station.Object {
 					AddValidMask(WallType.INNER_EDGE_T, validMasks);
 				}
 
+				if (wallCount >= 4) {
+					AddValidMask(WallType.INNER_EDGE_CROSS, validMasks);
+				}
+
 				if (containsEmptySpaces) {
 					
 					AddValidMask(WallType.OUTER_DEFAULT, validMasks);
@@ -87,6 +91,7 @@ namespace SpaceStation.Station.Object {
 					if (wallCount >= 3) {
 						AddValidMask(WallType.OUTER_EDGE_OUTER, validMasks);
 						AddValidMask(WallType.OUTER_EDGE_INNER, validMasks);
+						AddValidMask(WallType.OUTER_EDGE_T, validMasks);
 					}
 				}
 			}

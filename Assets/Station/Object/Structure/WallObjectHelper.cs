@@ -15,9 +15,11 @@ namespace SpaceStation.Station.Structure.Cell {
 		OUTER_DEFAULT,
 		OUTER_EDGE_OUTER,
 		OUTER_EDGE_INNER,
+		OUTER_EDGE_T,
 
 		INNER_DEFAULT,
 		INNER_EDGE_INNER,
+		INNER_EDGE_CROSS,
 		INNER_EDGE_T,
 		INNER_END
 	}
@@ -57,6 +59,11 @@ namespace SpaceStation.Station.Structure.Cell {
 				wall,	wall,	floor,
 				any,	floor,	any
 			));
+			AddWallType(WallType.OUTER_EDGE_T, "Prefabs/wallOuterEdgeT", new CellMask(
+				any,	empty,	any, 
+				wall,	wall,	wall,
+				any,	wall,	any
+			));
 
 			/* Inner walls */
 
@@ -79,9 +86,12 @@ namespace SpaceStation.Station.Structure.Cell {
 				floor,	wall,	floor, 
 				wall,	wall,	wall,
 				any,	floor,	any
-				));
-
-			/* Outer/inner connection walls */
+			));
+			AddWallType(WallType.INNER_EDGE_CROSS, "Prefabs/wallInnerEdgeCross", new CellMask(
+				floor,	wall,	floor, 
+				wall,	wall,	wall,
+				floor,	wall,	floor
+			));
 		}
 
 		private void AddWallType(WallType type, string prefabName, CellMask mask) {
