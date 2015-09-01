@@ -16,8 +16,8 @@ namespace SpaceStation.Station.Structure.Cell {
 
 		public BaseObject containedObject;
 
-		private IntVector3 position;
-		private Chunk parentChunk;
+		public IntVector3 Position;
+		public Chunk ParentChunk;
 
 		public static bool IsEmpty(CellDefinition cell) {
 			if (cell == null) {
@@ -28,20 +28,20 @@ namespace SpaceStation.Station.Structure.Cell {
 		}
 
 		public CellDefinition(IntVector3 position, Chunk parentChunk) {
-			this.position = position;
-			this.parentChunk = parentChunk;
+			this.Position = position;
+			this.ParentChunk = parentChunk;
 		}
 
 		public void Update() {
 
 			/* If present, update floor object */
 			if (this.floor != null) {
-				this.floor.Update(this.position);
+				this.floor.Update(this.Position);
 			}
 			
 			/* If present, update wall object */
 			if (this.wall != null) {
-				this.wall.Update(this.position);
+				this.wall.Update(this.Position);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace SpaceStation.Station.Structure.Cell {
 				this.wall = new WallObject();
 			}
 
-			this.parentChunk.SetCellDirty(this);
+			this.ParentChunk.SetCellDirty(this);
 		}
 
 		public void CreateFloor() {
@@ -62,7 +62,7 @@ namespace SpaceStation.Station.Structure.Cell {
 				this.floor = new FloorObject();
 			}
 			
-			this.parentChunk.SetCellDirty(this);
+			this.ParentChunk.SetCellDirty(this);
 		}
 
 		public void Destroy() {

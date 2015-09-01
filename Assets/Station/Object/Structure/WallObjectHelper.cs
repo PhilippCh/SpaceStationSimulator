@@ -15,7 +15,8 @@ namespace SpaceStation.Station.Structure.Cell {
 		OUTER_DEFAULT,
 		OUTER_EDGE_OUTER,
 		OUTER_EDGE_INNER,
-		OUTER_EDGE_T,
+		OUTER_EDGE_T_INNER,
+		OUTER_EDGE_T_OUTER,
 
 		INNER_DEFAULT,
 		INNER_EDGE_INNER,
@@ -44,53 +45,61 @@ namespace SpaceStation.Station.Structure.Cell {
 
 			/* Outer walls */
 
-			AddWallType(WallType.OUTER_DEFAULT, "Prefabs/wallOuter", new CellMask(
+			AddWallType(WallType.OUTER_DEFAULT, "wallOuter", new CellMask(
 				any,	empty,	any, 
 				wall,	wall,	wall,
 				any,	floor,	any
 			));
-			AddWallType(WallType.OUTER_EDGE_OUTER, "Prefabs/wallOuterEdgeOuter", new CellMask(
+			AddWallType(WallType.OUTER_EDGE_OUTER, "wallOuterEdgeOuter", new CellMask(
 				any,	empty,	any, 
 				empty,	wall,	wall,
 				any,	wall,	any
 			));
-			AddWallType(WallType.OUTER_EDGE_INNER, "Prefabs/wallOuterEdgeInner", new CellMask(
+			AddWallType(WallType.OUTER_EDGE_INNER, "wallOuterEdgeInner", new CellMask(
 				any,	wall,	any, 
 				wall,	wall,	floor,
 				any,	floor,	any
 			));
-			AddWallType(WallType.OUTER_EDGE_T, "Prefabs/wallOuterEdgeT", new CellMask(
-				any,	empty,	any, 
-				wall,	wall,	wall,
-				any,	wall,	any
-			));
 
 			/* Inner walls */
 
-			AddWallType(WallType.INNER_DEFAULT, "Prefabs/wallInner", new CellMask(
+			AddWallType(WallType.INNER_DEFAULT, "wallInner", new CellMask(
 				any,	floor,	any, 
 				wall,	wall,	wall,
 				any,	floor,	any
 			));
-			AddWallType(WallType.INNER_END, "Prefabs/wallInnerEnd", new CellMask(
+			AddWallType(WallType.INNER_END, "wallInnerEnd", new CellMask(
 				any,	floor,	any, 
 				floor,	wall,	wall,
 				any,	floor,	any
 			));
-			AddWallType(WallType.INNER_EDGE_INNER, "Prefabs/wallInnerEdgeInner", new CellMask(
+			AddWallType(WallType.INNER_EDGE_INNER, "wallInnerEdgeInner", new CellMask(
 				floor,	wall,	any, 
 				wall,	wall,	floor,
 				any,	floor,	any
 			));
-			AddWallType(WallType.INNER_EDGE_T, "Prefabs/wallInnerEdgeT", new CellMask(
+			AddWallType(WallType.INNER_EDGE_T, "wallInnerEdgeT", new CellMask(
 				floor,	wall,	floor, 
 				wall,	wall,	wall,
 				any,	floor,	any
 			));
-			AddWallType(WallType.INNER_EDGE_CROSS, "Prefabs/wallInnerEdgeCross", new CellMask(
+			AddWallType(WallType.INNER_EDGE_CROSS, "wallInnerEdgeCross", new CellMask(
 				floor,	wall,	floor, 
 				wall,	wall,	wall,
 				floor,	wall,	floor
+			));
+
+			/* Outer/inner wall connections */
+
+			AddWallType(WallType.OUTER_EDGE_T_INNER, "wallOuterEdgeTInner", new CellMask(
+				any,	empty,	any, 
+				wall,	wall,	wall,
+				any,	wall,	any
+			));
+			AddWallType(WallType.OUTER_EDGE_T_OUTER, "wallOuterEdgeTOuter", new CellMask(
+				floor,	floor,	any, 
+				wall,	wall,	wall,
+				floor,	wall,	empty
 			));
 		}
 

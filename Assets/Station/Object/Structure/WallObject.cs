@@ -91,7 +91,8 @@ namespace SpaceStation.Station.Object {
 					if (wallCount >= 3) {
 						AddValidMask(WallType.OUTER_EDGE_OUTER, validMasks);
 						AddValidMask(WallType.OUTER_EDGE_INNER, validMasks);
-						AddValidMask(WallType.OUTER_EDGE_T, validMasks);
+						AddValidMask(WallType.OUTER_EDGE_T_INNER, validMasks);
+						AddValidMask(WallType.OUTER_EDGE_T_OUTER, validMasks);
 					}
 				}
 			}

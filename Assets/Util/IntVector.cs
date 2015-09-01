@@ -24,6 +24,10 @@ namespace SpaceStation.Util {
 			return new Vector2(this.x, this.z);
 		}
 
+		public IntVector3 ToIntVector3(int y) {
+			return new IntVector3(this.x, y, this.z);
+		}
+
 		public static IntVector2 operator + (IntVector2 a, IntVector2 b) {
 			a.x += b.x;
 			a.z += b.z;
@@ -79,6 +83,10 @@ namespace SpaceStation.Util {
 			return new Vector3(this.x, this.y, this.z);
 		}
 
+		public IntVector2 ToIntVector2() {
+			return new IntVector2(this.x, this.z);
+		}
+
 		public static IntVector3 operator + (IntVector3 a, IntVector3 b) {
 			a.x += b.x;
 			a.y += b.y;
@@ -117,10 +125,6 @@ namespace SpaceStation.Util {
 			a.z *= b;
 			
 			return a;
-		}
-
-		public IntVector2 ToIntVector2() {
-			return new IntVector2(this.x, this.z);
 		}
 
 		public override string ToString()

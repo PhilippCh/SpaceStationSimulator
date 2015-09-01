@@ -196,7 +196,7 @@ namespace SpaceStation.Station.Structure.Room {
 			var topLeftCorner = new IntVector3(64, 64, 64);
 
 			LoopHelper.IntXZ(IntVector2.zero, upperBounds, 1, (x, z) => {
-				var absPosition = topLeftCorner + new IntVector3(x, 0, z);
+				var absPosition = topLeftCorner + new IntVector3(x, 0, upperBounds.z - z);
 				var cell = RegionManager.Instance.GetCellAt(absPosition);
 
 				/* If cell was empty and we don't want anything there, return */
@@ -242,7 +242,7 @@ namespace SpaceStation.Station.Structure.Room {
 		/**
 		 * Initializes builder dialog.
 		 */
-		private void Awake() {
+		private void Start() {
 			ShowBuildDialog(new IntVector3(64));
 		}
 

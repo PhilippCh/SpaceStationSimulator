@@ -9,12 +9,12 @@ namespace SpaceStation {
 
 	public class CameraController : MonoBehaviour {
 
-		public float smoothTime = 0.3f;
+		public float SmoothTime = 0.3f;
 
-		private Transform followTarget;
-		private Vector3 target;
+		public Vector3 OffsetPosition = new Vector3(-.5f, 4f, -.5f);
+		public Vector3 OffsetRotation;
 
-		private static Vector3 offset = new Vector3(-.5f, 4f, -.5f);
+		public Transform Target;
 
 		public static CameraController GetMainController() {
 			var mainCamera = Camera.main;
@@ -34,19 +34,13 @@ namespace SpaceStation {
 			return controller;
 		}
 
-		public void MoveTo(IntVector3 target, bool instant = false) {
-			Logger.QuickInfo("Moving to" + target.ToString());
-			MoveTo(target.ToVector3(), instant);
-		}
-
-		public void MoveTo(Vector3 target, bool instant = false) {
-			Logger.QuickInfo("Moving to" + target.ToString());
-
-			if (instant) {
-				this.transform.position = target + offset;
-			} else {
-				throw new NotImplementedException("Camera smooth movement not implemented.");
+		private void LateUpdate() {
+			if (!this.Target) {
+				return;
 			}
+
+			this.transform.position = this.Target.transform.position + this.OffsetPosition;
+			this.transform.eulerAngles = this.OffsetRotation;
 		}
 	}
 

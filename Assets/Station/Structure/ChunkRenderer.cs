@@ -11,6 +11,8 @@ namespace SpaceStation.Station.Structure {
 
 	public class ChunkRenderer : MonoBehaviour {
 
+		public bool DebugMode = false;
+
 		private Chunk[] activeChunks;
 		private int centerChunk;
 
@@ -44,6 +46,10 @@ namespace SpaceStation.Station.Structure {
 		}
 
 		private void OnDrawGizmos() {
+			if (!DebugMode) {
+				return;
+			}
+
 			Gizmos.color = Color.yellow;
 
 			LoopHelper.IntXYZ(IntVector3.zero, new IntVector3(2), 1, (x, y, z) => {

@@ -35,7 +35,7 @@ namespace SpaceStation.Station.Object {
 				return;
 			}
 
-			this.floorPrefab = Resources.Load("Prefabs/floor") as GameObject;
+			this.floorPrefab = Resources.Load("floor") as GameObject;
 		}
 	}
 

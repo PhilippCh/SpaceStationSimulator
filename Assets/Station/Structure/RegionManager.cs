@@ -39,7 +39,7 @@ namespace SpaceStation.Station.Structure {
 		}
 
 		private void Awake() {
-			SetSpawnPosition(SpawnPosition.CENTER, true);
+			SetSpawnPosition(SpawnPosition.CENTER);
 		}
 		private void Update() {
 			this.activeRegion.Update();
@@ -49,7 +49,7 @@ namespace SpaceStation.Station.Structure {
 		 * Sets camera position and identity vector.
 		 * The identity vector defined the center point of our universe (e.g. X = Y = Z = 0)
 		 */
-		private void SetSpawnPosition(SpawnPosition position, bool setCamera = false) {
+		private void SetSpawnPosition(SpawnPosition position) {
 
 			switch (defaultSpawnPosition) {
 				case SpawnPosition.ZERO:
@@ -59,14 +59,6 @@ namespace SpaceStation.Station.Structure {
 				case SpawnPosition.CENTER:
 					identityVector = new IntVector3(Region.REGION_SIZE / 2);
 					break;
-			}
-
-			if (setCamera) {
-				var cameraController = CameraController.GetMainController();
-
-				if (cameraController != null) {
-					cameraController.MoveTo(identityVector * Chunk.CHUNK_SIZE, true);
-				}
 			}
 		}
 
