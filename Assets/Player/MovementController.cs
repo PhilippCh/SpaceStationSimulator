@@ -12,7 +12,10 @@ namespace SpaceStation.Player {
 
 		private const float MAX_CAST_DISTANCE = 10f;
 
-		public float Speed = 1f;
+		public float Speed = 2f;
+		public float RotationSpeed = 5f;
+
+		public Animator Animator;
 
 		private LayerMask structureLayer;
 		private Vector3 targetPosition;
@@ -28,10 +31,20 @@ namespace SpaceStation.Player {
 				SelectTargetCell();
 			}
 
-			if (targetPosition != this.transform.position) {
+			Animator.SetBool("moving", targetPosition != transform.position);
+
+			if (targetPosition != transform.position) {
 
 				/* Linearly move player to target cell */
-				this.transform.position = Vector3.MoveTowards(this.transform.position, this.targetPosition, Speed * Time.deltaTime);
+				this.transform.position = Vector3.MoveTowards(transform.position, targetPosition, Speed * Time.deltaTime);
+
+				var _direction = (targetPosition - transform.position).normalized;
+				
+				//create the rotation we need to be in to look at the target
+				var _lookRotation = Quaternion.LookRotation(_direction);
+				
+				//rotate us over time according to speed until we are in the required rotation
+				transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
 			}
 		}
 

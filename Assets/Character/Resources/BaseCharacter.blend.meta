@@ -41,6 +41,9 @@ ModelImporter:
     4300002: Plane
     7400000: Default Take
     7400002: PlayerArmatureAction
+    7400004: PlayerArmatureAction_001
+    7400006: walk_regular
+    7400008: idle_regular
     9500000: //RootNode
     13700000: Player
   materials:
@@ -64,10 +67,64 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: PlayerArmatureAction
-      takeName: PlayerArmatureAction
-      firstFrame: 0
-      lastFrame: 39
+      name: walk_regular
+      takeName: walk_regular
+      firstFrame: -1
+      lastFrame: 59
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Player
+        weight: 1
+      - path: PlayerArmature
+        weight: 1
+      - path: PlayerArmature/root
+        weight: 1
+      - path: PlayerArmature/root/body
+        weight: 1
+      - path: PlayerArmature/root/body/top
+        weight: 1
+      - path: PlayerArmature/root/body/uarm_L
+        weight: 1
+      - path: PlayerArmature/root/body/uarm_L/larm_L
+        weight: 1
+      - path: PlayerArmature/root/body/uarm_R
+        weight: 1
+      - path: PlayerArmature/root/body/uarm_R/larm_R
+        weight: 1
+      - path: PlayerArmature/root/uleg_L
+        weight: 1
+      - path: PlayerArmature/root/uleg_L/lleg_L
+        weight: 1
+      - path: PlayerArmature/root/uleg_R
+        weight: 1
+      - path: PlayerArmature/root/uleg_R/lleg_R
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    - serializedVersion: 16
+      name: idle_regular
+      takeName: idle_regular
+      firstFrame: -1
+      lastFrame: 20
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
