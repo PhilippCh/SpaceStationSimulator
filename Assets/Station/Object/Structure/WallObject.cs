@@ -28,6 +28,8 @@ namespace SpaceStation.Station.Object {
 			this.registry = GameRegistry.Instance;
 		}
 
+		#region implemented abstract members of BaseObject
+
 		public override void Update(IntVector3 position) {
 			var neighborCells = new short[9];
 			var validMasks = new Dictionary<WallType, CellMask>(5);
@@ -121,6 +123,27 @@ namespace SpaceStation.Station.Object {
 				SetRotation(calculatedRotation);
 			}
 		}
+
+		public override SerializedObject Serialize()
+		{
+			var serializedObject = new SerializedObject();
+			serializedObject.Id = GameRegistry.Instance.GetObjectId<WallObject>();
+
+			serializedObject.Properties.Add(this.Type);
+			serializedObject.Properties.Add(this.Rotation);
+
+			return serializedObject;
+		}
+
+		public override void Deserialize(IntVector3 position, SerializedObject serializedObject)
+		{
+			this.Type = (WallType) serializedObject.Properties[0];
+			this.Rotation = (Rotation) serializedObject.Properties[1];
+
+			SpawnWall(this.Type, position, this.Rotation);
+		}
+
+		#endregion
 
 		private void AddValidMask(WallType type, Dictionary<WallType, CellMask> validMasks) {
 			var cellMasks = registry.WallObjectHelper.Masks;

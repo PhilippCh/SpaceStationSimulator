@@ -6,8 +6,64 @@ using System.Collections.Generic;
 using SpaceStation.Station.Object;
 using SpaceStation.Util;
 using SpaceStation.Game;
+using System;
 
 namespace SpaceStation.Station.Structure.Cell {
+
+	[System.Serializable]
+	public class SerializedCellDefinition {
+
+		public SerializedObject wall;
+		public SerializedObject floor;
+		public SerializedObject containedObject;
+
+		public static SerializedCellDefinition Serialize(CellDefinition cell) {
+			if (cell == null) {
+				return null;
+			}
+
+			var serializedCell = new SerializedCellDefinition();
+
+			if (cell.wall != null) {
+				serializedCell.wall = cell.wall.Serialize();
+			}
+
+			if (cell.floor != null) {
+				serializedCell.floor = cell.floor.Serialize();
+			}
+
+			if (cell.containedObject != null) {
+				serializedCell.containedObject = cell.containedObject.Serialize();
+			}
+
+			return serializedCell;
+		}
+
+		public static CellDefinition Deserialize(IntVector3 position, Chunk parentChunk, SerializedCellDefinition serializedCell) {
+			var cell = new CellDefinition(position, parentChunk);
+
+			if (serializedCell.wall != null) {
+				cell.wall = new WallObject();
+				cell.wall.Deserialize(position, serializedCell.wall);
+			}
+			
+			if (serializedCell.floor != null) {
+				cell.floor = new FloorObject();
+				cell.floor.Deserialize(position, serializedCell.floor);
+			}
+			
+			if (serializedCell.containedObject != null) {
+				var type = GameRegistry.Instance.GetObjectType(serializedCell.containedObject.Id);
+
+				cell.containedObject = (BaseObject) Activator.CreateInstance(type);
+				cell.containedObject.Deserialize(position, serializedCell.containedObject);
+			}
+
+			parentChunk.SetCellAt(position, cell);
+			
+			return cell;
+		}
+	}
 
 	public class CellDefinition {
 

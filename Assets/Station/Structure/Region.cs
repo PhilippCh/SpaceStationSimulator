@@ -3,6 +3,11 @@ using System.Collections;
 
 using SpaceStation.Station.Structure;
 using SpaceStation.Util;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Collections.Generic;
 
 namespace SpaceStation.Station.Structure {
 
@@ -48,6 +53,47 @@ namespace SpaceStation.Station.Structure {
 			}
 
 			return this.chunks[indexedPos];
+		}
+
+		public void Save(string path) {
+			FileStream regionFile = File.Create(path);
+			BinaryFormatter formatter = new BinaryFormatter();
+
+			List<SerializedChunk> serializedChunks = new List<SerializedChunk>();
+
+			for (int i = 0; i < this.chunks.Length; i++) {
+				serializedChunks.Add(SerializedChunk.Serialize(this.chunks[i]));
+			}
+
+			formatter.Serialize(regionFile, serializedChunks);
+
+			regionFile.Close();
+
+			Logger.Info("Saved region file.");
+		}
+
+		public void Load(string path) {
+			var regionFile = File.OpenRead(path);
+			var formatter = new BinaryFormatter();
+
+			List<SerializedChunk> serializedChunks = (List<SerializedChunk>) formatter.Deserialize(regionFile);
+			
+			regionFile.Close();
+			
+			Logger.Info("Loaded region file, will initialize chunks.");
+
+			if (serializedChunks.Count != this.chunks.Length) {
+				Logger.Error("Could not load region file, chunk length does not match actual chunk count.");
+				return;
+			}
+
+			for (int i = 0; i < serializedChunks.Count; i++) {
+				if (serializedChunks[i] != null) {
+					this.chunks[i] = serializedChunks[i].Deserialize();
+				} else {
+					this.chunks[i] = null;
+				}
+			}
 		}
 
 		private int ConvertPositionToIndex(IntVector3 position) {

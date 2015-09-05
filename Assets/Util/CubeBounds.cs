@@ -5,6 +5,7 @@ using SpaceStation;
 
 namespace SpaceStation.Util {
 
+	[System.Serializable]
 	public struct CubeBounds {
 
 		public Vector3 Position;

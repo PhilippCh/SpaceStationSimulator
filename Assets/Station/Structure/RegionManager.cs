@@ -94,7 +94,7 @@ namespace SpaceStation.Station.Structure {
 		public void SetCellAt(IntVector3 position, CellDefinition cell) {
 			var targetChunk = activeRegion.GetChunkAt(position);
 			
-			targetChunk.SetCell(position, cell);
+			targetChunk.SetCellAt(position, cell);
 		}
 
 		public Region GetRegionAt(IntVector3 position) {
@@ -104,6 +104,14 @@ namespace SpaceStation.Station.Structure {
 			}
 
 			return activeRegion;
+		}
+
+		public void LoadRegion(string path) {
+			this.activeRegion.Load(path);
+		}
+
+		public void SaveRegion(string path) {
+			this.activeRegion.Save(path);
 		}
 
 		public void UpdateRenderedCells(Vector2 targetPos) {

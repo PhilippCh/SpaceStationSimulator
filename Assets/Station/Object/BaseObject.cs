@@ -9,12 +9,22 @@ using SpaceStation.Station.Structure.Cell;
 
 namespace SpaceStation.Station.Object {
 
+	[System.Serializable]
+	public class SerializedObject {
+
+		public short Id;
+		public List<object> Properties = new List<object>();
+	}
+
 	public abstract class BaseObject {
 
 		protected CellDefinition cellReference;
 		protected GameObject goReference;
 
 		public abstract void Update(IntVector3 position);
+
+		public abstract SerializedObject Serialize();
+		public abstract void Deserialize(IntVector3 position, SerializedObject serializedObject);
 
 		public void Destroy() {
 			this.Recycle();

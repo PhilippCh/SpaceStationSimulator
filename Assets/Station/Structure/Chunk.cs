@@ -18,8 +18,6 @@ namespace SpaceStation.Station.Structure {
 		public const int CHUNK_SIZE = 8;
 		public const int HALF_CHUNK_SIZE = CHUNK_SIZE / 2;
 
-		public Guid ChunkId = Guid.NewGuid();
-
 		public CubeBounds Bounds;
 
 		private CellDefinition[] cells;
@@ -84,6 +82,10 @@ namespace SpaceStation.Station.Structure {
 			this.isActive = true;
 		}
 
+		public CellDefinition[] GetAllCells() {
+			return this.cells;
+		}
+
 		public CellDefinition GetCell(IntVector3 position) {
 			if (!this.Bounds.Contains(position)) {
 				Logger.Warn("GetCell", "Cell index out of bounds. {0}", position);
@@ -117,15 +119,12 @@ namespace SpaceStation.Station.Structure {
 			}
 		}
 
-		[System.Obsolete("Use direct cell reference instead")]
-		public void SetCell(IntVector3 position, CellDefinition cell) {
-			var index = ConvertAbsPositionToIndex(position);
+		public void SetCellAt(IntVector3 absPos, CellDefinition cell) {
+			var index = ConvertAbsPositionToIndex(absPos);
 
-			if (!cells[index].Equals(cell)) {
-				cells[index] = cell;
+			if (this.cells[index] != cell) {
+				this.cells[index] = cell;
 			}
-
-			SetCellDirty(cell);
 		}
 
 		public void SetCellDirty(CellDefinition cell) {
@@ -140,8 +139,55 @@ namespace SpaceStation.Station.Structure {
 			return ConvertRelPositionToIndex(relPos);
 		}
 
+		public static IntVector3 ConvertIndexToRelPosition(int index) {
+			var z = index / (CHUNK_SIZE * CHUNK_SIZE);
+			var y = (index - (z * CHUNK_SIZE * CHUNK_SIZE)) / CHUNK_SIZE;
+			var x = index - y * CHUNK_SIZE - z * CHUNK_SIZE * CHUNK_SIZE;
+
+			return new IntVector3(x, y, z);
+		}
+
 		private int ConvertRelPositionToIndex(IntVector3 relPos) {
 			return relPos.x + (relPos.y * CHUNK_SIZE) + (relPos.z * CHUNK_SIZE * CHUNK_SIZE);
+		}
+	}
+
+	[System.Serializable]
+	public class SerializedChunk {
+
+		public IntVector3 Position;
+		public SerializedCellDefinition[] Cells;
+
+		public static SerializedChunk Serialize(Chunk chunk) {
+			if (chunk == null) {
+				return null;
+			}
+
+			var cells = chunk.GetAllCells();
+			var serializedChunk = new SerializedChunk();
+
+			serializedChunk.Position = chunk.Bounds.Position.ToIntVector3();
+			serializedChunk.Cells = new SerializedCellDefinition[cells.Length];
+
+			for (int i = 0; i < cells.Length; i++) {
+				serializedChunk.Cells[i] = SerializedCellDefinition.Serialize(cells[i]);
+			}
+
+			return serializedChunk;
+		}
+
+		public Chunk Deserialize() {
+			var chunk = new Chunk(this.Position);
+
+			for (int i = 0; i < this.Cells.Length; i++) {
+				if (this.Cells[i] != null) {
+					var cellPos = this.Position + Chunk.ConvertIndexToRelPosition(i);
+
+					SerializedCellDefinition.Deserialize(cellPos, chunk, this.Cells[i]);
+				}
+			}
+
+			return chunk;
 		}
 	}
 
