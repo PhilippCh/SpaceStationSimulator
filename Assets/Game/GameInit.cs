@@ -16,6 +16,10 @@ namespace SpaceStation.Game {
 			registry.RegisterObject<FloorObject>(1);
 
 			registry.PostAwake();
+
+			var save = new GameSave();
+
+			save.Load();
 		}
 	}
 
