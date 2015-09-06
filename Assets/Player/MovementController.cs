@@ -5,6 +5,8 @@ using SpaceStation;
 using SpaceStation.Util;
 using SpaceStation.Station.Structure;
 using SpaceStation.Station.Structure.Cell;
+using SpaceStation.Character;
+using System.Collections.Generic;
 
 namespace SpaceStation.Player {
 
@@ -18,11 +20,10 @@ namespace SpaceStation.Player {
 		public Animator Animator;
 
 		private LayerMask structureLayer;
-		private Vector3 targetPosition;
+		private List<PathNode> pathToTarget;
 
 		private void Awake() {
 			structureLayer = LayerMask.GetMask("structure");
-			targetPosition = new Vector3(65, 64, 65);
 		}
 
 		private void Update () {
@@ -30,28 +31,16 @@ namespace SpaceStation.Player {
 			if (Input.GetMouseButtonDown(0)) {
 				SelectTargetCell();
 			}
-
-			Animator.SetBool("moving", targetPosition != transform.position);
-
-			if (targetPosition != transform.position) {
-
-				/* Linearly move player to target cell */
-				this.transform.position = Vector3.MoveTowards(transform.position, targetPosition, Speed * Time.deltaTime);
-
-				var _direction = (targetPosition - transform.position).normalized;
-				
-				//create the rotation we need to be in to look at the target
-				var _lookRotation = Quaternion.LookRotation(_direction);
-				
-				//rotate us over time according to speed until we are in the required rotation
-				transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
-			}
 		}
 
 		private void SelectTargetCell() {
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hitInfo;
-			
+
+			if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+				return;
+			}
+
 			if (!Physics.Raycast(ray, out hitInfo, MAX_CAST_DISTANCE, structureLayer)) {
 				Logger.Info("Hit nothing :(");
 				return;
@@ -62,10 +51,50 @@ namespace SpaceStation.Player {
 			
 			if (targetCell != null) {
 				Logger.Info("Hit at {0}.", targetCell.Position);
-				targetPosition = targetCell.Position.ToVector3();
+
+				var pathfinder = this.GetComponent<Pathfinder>();
+				var path = new List<PathNode>();
+
+				if (pathfinder.FindPath(transform.position.ToIntVector3(), targetCell.Position, out path)) {
+					this.pathToTarget = path.Clone();
+
+					StartCoroutine(WalkToTarget());
+				}
 			} else {
 				Logger.Info("Could not find walkable cell in range.");
 			}
+		}
+
+		private IEnumerator WalkToTarget() {
+
+			while (this.pathToTarget.Count > 0) {
+				var nextNode = this.pathToTarget.PopAt(0);
+
+				yield return StartCoroutine(WalkToNode(nextNode));
+			}
+		}
+
+		private IEnumerator WalkToNode(PathNode node) {
+			var targetPosition = node.Position.ToVector3();
+			var animator = GetComponent<Animator>();
+
+			while (targetPosition != transform.position) {
+
+				animator.SetBool("moving", true);
+				
+				/* Linearly move player to target cell */
+				this.transform.position = Vector3.MoveTowards(transform.position, targetPosition, Speed * Time.deltaTime);
+				
+				var _direction = (targetPosition - transform.position).normalized;
+				var _lookRotation = Quaternion.LookRotation(_direction);
+				
+				//rotate us over time according to speed until we are in the required rotation
+				transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
+
+				yield return null;
+			}
+
+			animator.SetBool("moving", false);
 		}
 
 		private CellDefinition GetClosestWalkableCell(IntVector3 position) {

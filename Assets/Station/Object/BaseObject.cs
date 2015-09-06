@@ -18,6 +18,8 @@ namespace SpaceStation.Station.Object {
 
 	public abstract class BaseObject {
 
+		protected Rotation rotation;
+
 		protected CellDefinition cellReference;
 		protected GameObject goReference;
 
@@ -25,6 +27,10 @@ namespace SpaceStation.Station.Object {
 
 		public abstract SerializedObject Serialize();
 		public abstract void Deserialize(IntVector3 position, SerializedObject serializedObject);
+
+		public bool Is<T>() {
+			return this.GetType() == typeof(T);
+		}
 
 		public void Destroy() {
 			this.Recycle();

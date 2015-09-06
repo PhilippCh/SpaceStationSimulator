@@ -39,6 +39,13 @@ namespace SpaceStation.Station.Structure.Cell {
 			yield return SOUTH;
 			yield return SOUTHEAST;
 		}
+
+		public static IEnumerable<IntVector2> Values2DCardinal() {
+			yield return NORTH;
+			yield return EAST;
+			yield return SOUTH;
+			yield return WEST;
+		}
 	}
 
 }

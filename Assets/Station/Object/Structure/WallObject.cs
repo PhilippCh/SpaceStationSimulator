@@ -11,6 +11,7 @@ using SpaceStation.Station.Structure;
 
 namespace SpaceStation.Station.Object {
 
+	[RegisterAsObject(0, typeof(WallObject))]
 	public class WallObject : BaseObject {
 
 		private enum NeighborType {
@@ -19,7 +20,6 @@ namespace SpaceStation.Station.Object {
 			WALL
 		}
 
-		public Rotation Rotation;
 		public WallType Type;
 
 		private GameRegistry registry;
@@ -66,6 +66,8 @@ namespace SpaceStation.Station.Object {
 					neighborCells[cellCounter] = registry.GetObjectId<WallObject>();
 				} else if (cell.floor != null) {
 					neighborCells[cellCounter] = registry.GetObjectId<FloorObject>();
+				} else if (cell.containedObject.Is<DoorObject>()) {
+					neighborCells[cellCounter] = registry.GetObjectId<DoorObject>();
 				} else {
 					neighborCells[cellCounter] = GameRegistry.EmptyObjectId;
 				}
@@ -119,7 +121,7 @@ namespace SpaceStation.Station.Object {
 			/* Spawn the new wall object and set transform */
 			if (this.Type != calculatedType) {
 				SpawnWall(calculatedType, position, calculatedRotation);
-			} else if (this.Rotation != calculatedRotation) {
+			} else if (this.rotation != calculatedRotation) {
 				SetRotation(calculatedRotation);
 			}
 		}
@@ -130,7 +132,7 @@ namespace SpaceStation.Station.Object {
 			serializedObject.Id = GameRegistry.Instance.GetObjectId<WallObject>();
 
 			serializedObject.Properties.Add(this.Type);
-			serializedObject.Properties.Add(this.Rotation);
+			serializedObject.Properties.Add(this.rotation);
 
 			return serializedObject;
 		}
@@ -138,9 +140,9 @@ namespace SpaceStation.Station.Object {
 		public override void Deserialize(IntVector3 position, SerializedObject serializedObject)
 		{
 			this.Type = (WallType) serializedObject.Properties[0];
-			this.Rotation = (Rotation) serializedObject.Properties[1];
+			this.rotation = (Rotation) serializedObject.Properties[1];
 
-			SpawnWall(this.Type, position, this.Rotation);
+			SpawnWall(this.Type, position, this.rotation);
 		}
 
 		#endregion
@@ -176,7 +178,7 @@ namespace SpaceStation.Station.Object {
 			prefabRotation.y = RotationHelper.GetEulerAngle(rotation);
 
 			this.goReference.transform.eulerAngles = prefabRotation;
-			this.Rotation = rotation;
+			this.rotation = rotation;
 		}
 	}
 

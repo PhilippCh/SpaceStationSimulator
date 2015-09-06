@@ -83,6 +83,11 @@ namespace SpaceStation.Station.Structure.Cell {
 			return cell.wall == null && cell.floor == null && cell.containedObject == null;
 		}
 
+		public static bool IsWalkable(CellDefinition cell) {
+			return cell == null ? false : 
+				cell.floor != null && cell.containedObject == null;
+		}
+
 		public CellDefinition(IntVector3 position, Chunk parentChunk) {
 			this.Position = position;
 			this.ParentChunk = parentChunk;
@@ -99,11 +104,18 @@ namespace SpaceStation.Station.Structure.Cell {
 			if (this.wall != null) {
 				this.wall.Update(this.Position);
 			}
+
+			/* Finally, update contained object */
+			if (this.containedObject != null) {
+				this.containedObject.Update(this.Position);
+			}
 		}
 
 		public bool IsEmpty() {
 			return this.wall == null && this.floor == null && this.containedObject == null;
 		}
+
+		#region Creating Objects
 
 		public void CreateWall() {
 			if (this.wall == null) {
@@ -120,6 +132,18 @@ namespace SpaceStation.Station.Structure.Cell {
 			
 			this.ParentChunk.SetCellDirty(this);
 		}
+
+		public void CreateObject(BaseObject newObject) {
+			if (this.containedObject != null) {
+				this.containedObject.Recycle();
+			}
+
+			this.containedObject = newObject;
+			
+			this.ParentChunk.SetCellDirty(this);
+		}
+
+		#endregion
 
 		public void Destroy() {
 			if (this.wall != null) {

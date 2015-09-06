@@ -9,6 +9,7 @@ using SpaceStation.Game;
 
 namespace SpaceStation.Station.Object {
 
+	[RegisterAsObject(1, typeof(FloorObject))]
 	public class FloorObject : BaseObject {
 
 		public Texture2D Texture;

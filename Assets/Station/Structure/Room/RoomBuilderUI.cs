@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System;
 using SpaceStation.Station.Structure.Cell;
 using SpaceStation.Station.Structure;
+using SpaceStation.Station.Object;
 
 namespace SpaceStation.Station.Structure.Room {
 
@@ -20,7 +21,8 @@ namespace SpaceStation.Station.Structure.Room {
 		private enum CellType {
 			EMPTY,
 			FLOOR,
-			WALL
+			WALL,
+			DOOR
 		}
 
 		/**
@@ -91,10 +93,12 @@ namespace SpaceStation.Station.Structure.Room {
 			var wallType = GameObject.Find("WallRadio").GetComponent<Toggle>().isOn;
 			var floorType = GameObject.Find("FloorRadio").GetComponent<Toggle>().isOn;
 			var emptyType = GameObject.Find("EmptyRadio").GetComponent<Toggle>().isOn;
+			var doorType = GameObject.Find("DoorRadio").GetComponent<Toggle>().isOn;
 
 			if (wallType) { this.drawCellType = CellType.WALL; }
 			if (floorType) { this.drawCellType = CellType.FLOOR; }
 			if (emptyType) { this.drawCellType = CellType.EMPTY; }
+			if (doorType) { this.drawCellType = CellType.DOOR; }
 		}
 
 		/**
@@ -129,6 +133,7 @@ namespace SpaceStation.Station.Structure.Room {
 			CreateSimpleStyle(CellType.WALL, Color.black, Color.yellow);
 			CreateSimpleStyle(CellType.FLOOR, Color.black, Color.green);
 			CreateSimpleStyle(CellType.EMPTY, Color.white, Color.blue);
+			CreateSimpleStyle(CellType.DOOR, Color.white, Color.magenta);
 		}
 
 		/**
@@ -216,6 +221,10 @@ namespace SpaceStation.Station.Structure.Room {
 
 					case CellType.FLOOR:
 						cell.CreateFloor();
+						break;
+
+					case CellType.DOOR: 
+						cell.CreateObject(new DoorObject());
 						break;
 
 					/* This is a special case! If something was here previously,

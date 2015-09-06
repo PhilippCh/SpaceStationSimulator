@@ -11,15 +11,10 @@ namespace SpaceStation.Game {
 		private void Awake() {
 			var registry = GameRegistry.Instance;
 
-			/* Register objects on startup */
-			registry.RegisterObject<WallObject>(0);
-			registry.RegisterObject<FloorObject>(1);
-
 			registry.PostAwake();
 
-			var save = new GameSave();
-
-			save.Load();
+			//var save = new GameSave();
+			//save.Load();
 		}
 	}
 

@@ -38,7 +38,7 @@ namespace SpaceStation.Station.Structure.Cell {
 			this.Masks = new Dictionary<WallType, CellMask>();
 			this.Prefabs = new Dictionary<WallType, GameObject>();
 
-			wall = new List<short>() { registry.GetObjectId<WallObject>() };
+			wall = new List<short>() { registry.GetObjectId<WallObject>(), registry.GetObjectId<DoorObject>() };
 			floor = new List<short>() { registry.GetObjectId<FloorObject>() };
 			empty = new List<short>() { GameRegistry.EmptyObjectId };
 			any = new List<short>();
