@@ -26,6 +26,9 @@ namespace SpaceStation.Character {
 
 	public class Pathfinder : MonoBehaviour {
 
+		public bool PerformSteps = false;
+		public bool ContinueSteps = false;
+
 		private RegionManager regionManager;
 
 		private IntVector3 start, end;
@@ -41,7 +44,7 @@ namespace SpaceStation.Character {
 			this.regionManager = RegionManager.Instance;
 		}
 
-		public bool FindPath(IntVector3 start, IntVector3 end, out List<PathNode> path) {
+		public IEnumerator FindPath(IntVector3 start, IntVector3 end, Action<bool, List<PathNode>> callback) {
 			PathNode endNode = null;
 			currentNode = null;
 
@@ -73,6 +76,12 @@ namespace SpaceStation.Character {
 					endNode = currentNode;
 					break;
 				}
+
+				while (!ContinueSteps && PerformSteps) {
+					yield return null;
+				}
+
+				ContinueSteps = false;
 				
 				/* Visit all neighbors of our current node */
 				foreach(var offset in CellRange.Values2D(false)) {
@@ -106,14 +115,13 @@ namespace SpaceStation.Character {
 
 			if (endNode == null) {
 				Logger.Warn("Could not find a valid path.");
-				path = null;
 
-				return false;
+				callback(false, null);
 			} else {
-				path = ReconstructPath(endNode);
+				var path = ReconstructPath(endNode);
 				path.Reverse();
 
-				return true;
+				callback(true, path);
 			}
 		}
 
@@ -133,7 +141,7 @@ namespace SpaceStation.Character {
 		}
 
 		private int Distance(IntVector3 start, IntVector3 end) {
-			return Mathf.Abs((end.x - start.x) + (end.y - start.y) + (end.z - start.z));
+			return Mathf.Abs(end.x - start.x) + Mathf.Abs(end.y - start.y) + Mathf.Abs(end.z - start.z);
 		}
 
 		private int Manhattan(IntVector3 start, IntVector3 end) {
@@ -143,12 +151,18 @@ namespace SpaceStation.Character {
 		private void OnDrawGizmos() {
 			var gizmoSize = new Vector3(.25f, .25f, .25f);
 
+			Gizmos.color = Color.green;
+
+			Gizmos.DrawWireCube(this.start.ToVector3(), gizmoSize);
+			Gizmos.DrawWireCube(this.end.ToVector3(), gizmoSize);
+
 			/* Draw open nodes */
 			Gizmos.color = Color.blue;
 
 			if (this.openNodes != null) {
 				foreach (var node in this.openNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
+					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
 
@@ -158,6 +172,7 @@ namespace SpaceStation.Character {
 			if (this.closedNodes != null) {
 				foreach (var node in this.closedNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
+					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
 
@@ -165,6 +180,7 @@ namespace SpaceStation.Character {
 			if (currentNode != null) {
 				Gizmos.color = Color.magenta;
 				Gizmos.DrawCube(currentNode.Position.ToVector3(), gizmoSize);
+				UnityEditor.Handles.Label(currentNode.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", currentNode.G, currentNode.F));
 			}
 
 			/* Draw valid nodes */
@@ -173,6 +189,7 @@ namespace SpaceStation.Character {
 			if (this.validNodes != null) {
 				foreach (var node in this.validNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
+					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
 		}

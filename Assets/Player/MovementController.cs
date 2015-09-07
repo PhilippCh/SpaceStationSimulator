@@ -22,6 +22,8 @@ namespace SpaceStation.Player {
 		private LayerMask structureLayer;
 		private List<PathNode> pathToTarget;
 
+		private bool isWalking = false;
+
 		private void Awake() {
 			structureLayer = LayerMask.GetMask("structure");
 		}
@@ -53,34 +55,45 @@ namespace SpaceStation.Player {
 				Logger.Info("Hit at {0}.", targetCell.Position);
 
 				var pathfinder = this.GetComponent<Pathfinder>();
-				var path = new List<PathNode>();
 
-				if (pathfinder.FindPath(transform.position.ToIntVector3(), targetCell.Position, out path)) {
-					this.pathToTarget = path.Clone();
-
-					StartCoroutine(WalkToTarget());
-				}
+				StartCoroutine(pathfinder.FindPath(transform.position.ToIntVector3(), targetCell.Position, PathfinderCallback));
 			} else {
 				Logger.Info("Could not find walkable cell in range.");
 			}
 		}
 
+		private void PathfinderCallback(bool success, List<PathNode> path) {
+			if (!success) {
+				return;
+			}
+
+			this.pathToTarget = path;
+
+			if (!isWalking) {
+				isWalking = true;
+				StartCoroutine(WalkToTarget());
+			}
+		}
+
 		private IEnumerator WalkToTarget() {
+			var animator = GetComponent<Animator>();
+
+			animator.SetBool("moving", true);
 
 			while (this.pathToTarget.Count > 0) {
 				var nextNode = this.pathToTarget.PopAt(0);
 
 				yield return StartCoroutine(WalkToNode(nextNode));
 			}
+
+			isWalking = false;
+			animator.SetBool("moving", false);
 		}
 
 		private IEnumerator WalkToNode(PathNode node) {
 			var targetPosition = node.Position.ToVector3();
-			var animator = GetComponent<Animator>();
 
 			while (targetPosition != transform.position) {
-
-				animator.SetBool("moving", true);
 				
 				/* Linearly move player to target cell */
 				this.transform.position = Vector3.MoveTowards(transform.position, targetPosition, Speed * Time.deltaTime);
@@ -93,8 +106,6 @@ namespace SpaceStation.Player {
 
 				yield return null;
 			}
-
-			animator.SetBool("moving", false);
 		}
 
 		private CellDefinition GetClosestWalkableCell(IntVector3 position) {
