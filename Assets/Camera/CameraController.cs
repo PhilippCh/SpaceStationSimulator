@@ -5,7 +5,7 @@ using SpaceStation;
 using SpaceStation.Util;
 using System;
 
-namespace SpaceStation {
+namespace SpaceStation.Camera {
 
 	public class CameraController : MonoBehaviour {
 
@@ -17,7 +17,7 @@ namespace SpaceStation {
 		public Transform Target;
 
 		public static CameraController GetMainController() {
-			var mainCamera = Camera.main;
+			var mainCamera = UnityEngine.Camera.main;
 
 			if (mainCamera == null) {
 				Logger.Error("No main camera present in scene.");

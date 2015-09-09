@@ -36,7 +36,7 @@ namespace SpaceStation.Player {
 		}
 
 		private void SelectTargetCell() {
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hitInfo;
 
 			if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
