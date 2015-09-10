@@ -11,7 +11,7 @@ namespace SpaceStation.Camera {
 
 		public float Move = 3.0f;
 		public float Zoom = 5.0f;
-		public float Rotate = 0.5f;
+		public float Rotate = 0.25f;
 	}
 
 	public class FollowCameraController : MonoBehaviour {
@@ -38,6 +38,7 @@ namespace SpaceStation.Camera {
 		private float currentZoom = 1;
 		private Vector3 positionVelocity;
 		private float zoomVelocity;
+		private float rotationVelocity;
 
 		private Vector3 lastMousePosition;
 	
@@ -87,10 +88,19 @@ namespace SpaceStation.Camera {
 
 			/* Set camera rotation to target rotation */
 			if (this.targetRotation != this.transform.eulerAngles.y) {
-				var to = Quaternion.Euler(0, this.targetRotation, 0);
+				var yRotation = Mathf.SmoothDampAngle(
+					this.transform.eulerAngles.y,
+					this.targetRotation,
+					ref this.rotationVelocity,
+					Time.deltaTime / this.Speed.Rotate
+				);
 
-				this.transform.rotation = Quaternion.Slerp(this.transform.rotation, to, Time.deltaTime * Speed.Rotate);
+				this.transform.rotation = Quaternion.Euler(0, yRotation, 0);
 			}
+		}
+
+		private void OnGUI() {
+			GUI.Label(new Rect(10, 10, 200, 20), "Target Rotation: " + this.targetRotation);
 		}
 
 		private void UpdateCameraZoom() {
