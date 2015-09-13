@@ -19,18 +19,21 @@ namespace SpaceStation.Player {
 
 		public Animator Animator;
 
+		private Pathfinder pathfinder;
+
 		private LayerMask structureLayer;
 		private List<PathNode> pathToTarget;
 
 		private bool isWalking = false;
 
 		private void Awake() {
+			pathfinder = this.GetComponent<Pathfinder>();
 			structureLayer = LayerMask.GetMask("structure");
 		}
 
 		private void Update () {
 	
-			if (Input.GetMouseButtonDown(0)) {
+			if (Input.GetMouseButtonUp(0)) {
 				SelectTargetCell();
 			}
 		}
@@ -54,20 +57,18 @@ namespace SpaceStation.Player {
 			if (targetCell != null) {
 				Logger.Info("Hit at {0}.", targetCell.Position);
 
-				var pathfinder = this.GetComponent<Pathfinder>();
-
 				StartCoroutine(pathfinder.FindPath(transform.position.ToIntVector3(), targetCell.Position, PathfinderCallback));
 			} else {
 				Logger.Info("Could not find walkable cell in range.");
 			}
 		}
 
-		private void PathfinderCallback(bool success, List<PathNode> path) {
+		private void PathfinderCallback(bool success) {
 			if (!success) {
 				return;
 			}
 
-			this.pathToTarget = path;
+			this.pathToTarget = pathfinder.OptimizePath();
 
 			if (!isWalking) {
 				isWalking = true;

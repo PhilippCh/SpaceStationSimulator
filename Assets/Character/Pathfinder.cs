@@ -26,34 +26,39 @@ namespace SpaceStation.Character {
 
 	public class Pathfinder : MonoBehaviour {
 
+		[Header("Debugging")]
 		public bool PerformSteps = false;
+		public bool ShowSearchNodes = false;
+		public bool ShowFinalPath = true;
+
+		[HideInInspector()]
 		public bool ContinueSteps = false;
 
 		private RegionManager regionManager;
 
 		private IntVector3 start, end;
-		private List<PathNode> openNodes, closedNodes, validNodes;
+		private List<PathNode> openNodes, closedNodes, finalNodes;
 
-		private PathNode currentNode;
+		private PathNode currentNode, endNode;
 
 		private void Awake() {
 			this.openNodes = new List<PathNode>();
 			this.closedNodes = new List<PathNode>();
-			this.validNodes = new List<PathNode>();
+			this.finalNodes = new List<PathNode>();
 			
 			this.regionManager = RegionManager.Instance;
 		}
 
-		public IEnumerator FindPath(IntVector3 start, IntVector3 end, Action<bool, List<PathNode>> callback) {
-			PathNode endNode = null;
+		public IEnumerator FindPath(IntVector3 start, IntVector3 end, Action<bool> callback) {
 			currentNode = null;
+			this.endNode = null;
 
 			this.start = start;
 			this.end = end;
 
 			this.openNodes.Clear();
 			this.closedNodes.Clear();
-			this.validNodes.Clear();
+			this.finalNodes.Clear();
 
 			/* Create start node and add to open list */
 			var startNode = new PathNode() {
@@ -73,7 +78,7 @@ namespace SpaceStation.Character {
 				this.closedNodes.Add(currentNode);
 				
 				if (currentNode.Position.Equals(end)) {
-					endNode = currentNode;
+					this.endNode = currentNode;
 					break;
 				}
 
@@ -113,31 +118,69 @@ namespace SpaceStation.Character {
 				}
 			}
 
-			if (endNode == null) {
-				Logger.Warn("Could not find a valid path.");
+			callback(this.endNode != null);
+		}
 
-				callback(false, null);
+		public List<PathNode> OptimizePath() {
+			ReconstructPath(false);
+
+			if (this.finalNodes.Count == 0) {
+				return null;
+			}
+
+			RemoveNodesInSight(this.finalNodes[0]);
+
+			this.finalNodes.Reverse();
+
+			return this.finalNodes;
+		}
+
+		private void RemoveNodesInSight(PathNode node) {
+			var heightOffset = new Vector3(0, 0.25f, 0);
+
+			if (node.ParentNode == null) {
+				return;
+			}
+
+			if (Physics.Linecast(node.Position + heightOffset, node.ParentNode.Position + heightOffset)) {
+				RemoveNodesInSight(node.ParentNode);
 			} else {
-				var path = ReconstructPath(endNode);
-				path.Reverse();
+				var parentIndex = this.finalNodes.IndexOf(node.ParentNode);
 
-				callback(true, path);
+				if (node.ParentNode == null) {
+					return;
+				}
+
+				node.ParentNode = node.ParentNode.ParentNode;
+				this.finalNodes.RemoveAt(parentIndex);
+
+				RemoveNodesInSight(node);
 			}
 		}
 
-		private List<PathNode> ReconstructPath(PathNode endNode) {
+		public List<PathNode> ReconstructPath(bool reverse = true) {
 			var currentNode = endNode;
 
+			if (this.endNode == null) {
+				Logger.Warn("Cannot reconstruct path, must find it first.");
+				return null;
+			}
+
 			while (true) {
-				this.validNodes.Add(currentNode);
-				currentNode = currentNode.ParentNode;
+				this.finalNodes.Add(currentNode);
 
 				if (currentNode.ParentNode == null) {
 					break;
 				}
+
+				currentNode = currentNode.ParentNode;
 			}
 
-			return this.validNodes;
+			if (reverse) {
+				this.finalNodes.Reverse();
+			}
+
+			return this.finalNodes;
 		}
 
 		private int Distance(IntVector3 start, IntVector3 end) {
@@ -148,51 +191,86 @@ namespace SpaceStation.Character {
 			return Mathf.Abs(start.x - end.x) + Mathf.Abs(start.y - end.y) + Mathf.Abs(start.z - end.z);
 		}
 
+		#region Debugging
+
 		private void OnDrawGizmos() {
+
+			if (this.ShowSearchNodes) {
+				DrawNodeSearchGizmos();
+			}
+
+			if (this.ShowFinalPath) {
+				DrawFinalPathGizmos();
+			}
+		}
+
+		private void DrawFinalPathGizmos() {
+			var currentNode = this.endNode;
+
+			if (this.endNode == null) {
+				return;
+			}
+
+			Gizmos.color = Color.red;
+
+			while (true) {
+				if (currentNode.ParentNode == null) {
+					break;
+				}
+
+				Gizmos.DrawLine(currentNode.Position.ToVector3(), currentNode.ParentNode.Position.ToVector3());
+
+				currentNode = currentNode.ParentNode;
+			}
+		}
+
+		private void DrawNodeSearchGizmos() {
 			var gizmoSize = new Vector3(.25f, .25f, .25f);
-
+			
 			Gizmos.color = Color.green;
-
+			
 			Gizmos.DrawWireCube(this.start.ToVector3(), gizmoSize);
 			Gizmos.DrawWireCube(this.end.ToVector3(), gizmoSize);
-
+			
 			/* Draw open nodes */
 			Gizmos.color = Color.blue;
-
+			
 			if (this.openNodes != null) {
 				foreach (var node in this.openNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
 					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
-
+			
 			/* Draw closed nodes */
 			Gizmos.color = Color.red;
-
+			
 			if (this.closedNodes != null) {
 				foreach (var node in this.closedNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
 					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
-
+			
 			/* Draw current node */
 			if (currentNode != null) {
 				Gizmos.color = Color.magenta;
 				Gizmos.DrawCube(currentNode.Position.ToVector3(), gizmoSize);
 				UnityEditor.Handles.Label(currentNode.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", currentNode.G, currentNode.F));
 			}
-
+			
 			/* Draw valid nodes */
 			Gizmos.color = Color.yellow;
 			
-			if (this.validNodes != null) {
-				foreach (var node in this.validNodes) {
+			if (this.finalNodes != null) {
+				foreach (var node in this.finalNodes) {
 					Gizmos.DrawCube(node.Position.ToVector3(), gizmoSize);
 					UnityEditor.Handles.Label(node.Position.ToVector3() + new Vector3(0, .5f, 0), string.Format("G: {0}, F: {0}", node.G, node.F));
 				}
 			}
 		}
+
+		#endregion
 	}
 
 }
