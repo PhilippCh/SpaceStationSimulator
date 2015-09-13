@@ -79,6 +79,11 @@ namespace SpaceStation.Util {
 			this.z = z;
 		}
 
+		public static implicit operator Vector3(IntVector3 original) {
+			return new Vector3(original.x, original.y, original.z);
+		}
+
+		/* Obsolete, replaced by Vector3 implicit operator */
 		public Vector3 ToVector3 () {
 			return new Vector3(this.x, this.y, this.z);
 		}
