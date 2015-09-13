@@ -9,7 +9,7 @@ using SpaceStation.Util;
 
 namespace SpaceStation.Game {
 
-	public class GameSave : MonoBehaviour {
+	public class GameSave {
 
 		public void Load() {
 			var regionManager = RegionManager.Instance;

@@ -13,8 +13,8 @@ namespace SpaceStation.Game {
 
 			registry.PostAwake();
 
-			//var save = new GameSave();
-			//save.Load();
+			var save = new GameSave();
+			save.Load();
 		}
 	}
 
